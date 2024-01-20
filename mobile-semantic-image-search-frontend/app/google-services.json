@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "228280651781",
+    "firebase_url": "https://semantic-search-app-default-rtdb.firebaseio.com",
+    "project_id": "semantic-search-app",
+    "storage_bucket": "semantic-search-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:228280651781:android:a3b58743f2d61f2dfd0c6c",
+        "android_client_info": {
+          "package_name": "com.example.mobile_semantic_image_search_frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNlN7irvFDUPx3eZxKW4M1kEzI0WnPEIU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
