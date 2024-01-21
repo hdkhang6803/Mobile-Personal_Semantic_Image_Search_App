@@ -26,6 +26,7 @@ import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexboxLayoutManager;
 
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
     private RecyclerView imageRegion;
     private ImageAdapter imageAdapter;
 
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +56,10 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
             // Permission is not granted, request it
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
         }
+        mAuth = FirebaseAuth.getInstance();
+
+//        Log.e("USER", mAuth.getCurrentUser().getUid());
+
         TextInputLayout textInputLayout = findViewById(R.id.textInputLayout);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             // Permission is not granted, request it

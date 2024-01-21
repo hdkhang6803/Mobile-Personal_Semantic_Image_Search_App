@@ -53,6 +53,8 @@
             android:background="@color/white"
             android:src="@drawable/add_photo"
             android:contentDescription="Camera"/>
+
+
     </LinearLayout>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/imageRegion"
