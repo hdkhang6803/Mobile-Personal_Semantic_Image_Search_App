@@ -38,5 +38,13 @@
             android:layout_height="wrap_content"
             android:src="@drawable/round_photo_camera_black_18"
             android:contentDescription="Camera"/>
+
+        <Button
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:id="@+id/startServiceButton"
+            android:text="Upload"
+            />
     </LinearLayout>
+
 </RelativeLayout>
