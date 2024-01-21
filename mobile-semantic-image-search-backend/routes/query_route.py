@@ -42,6 +42,7 @@ def img_query_search_route(app, model, index, preprocess):
         # print("GEt here", request.form['file'])
         try:
             user_id = request.form['userId']
+            print("USERID: ", user_id)
             # Get the base64-encoded image data from the request
             encoded_image = request.form['file']
 
@@ -54,9 +55,9 @@ def img_query_search_route(app, model, index, preprocess):
             
             # Open the image using PIL
             img_query = Image.open(image_stream)
-            plt.imshow(img_query)
-            plt.axis('off')
-            plt.show()
+            # plt.imshow(img_query)
+            # plt.axis('off')
+            # plt.show()
         
             img_embedding = calculate_img_embeddings(model=model, preprocess=preprocess, raw_image=img_query, device='cpu')
             image_uri_list = get_matched_image_paths(index, img_embedding, num_results=100)
