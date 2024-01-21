@@ -3,6 +3,7 @@ package com.example.mobile_semantic_image_search_frontend;
 import android.content.Context;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.MediaType;
@@ -46,7 +47,7 @@ public class HttpTextTask  {
                             String status = serverResponse.getStatus();
                             Log.e("HTTP Text Response", "Server Response: " + status);
                             List<String> imageUriList = serverResponse.getImageUris();
-                        notifyTextQueryResponseReceived(imageUriList);
+                            notifyTextQueryResponseReceived(imageUriList);
                         }
                     } else {
                         Log.e("HTTP Text Server error", "Server Response Code: " + response.code());

@@ -62,9 +62,9 @@ def img_query_search_route(app, model, index, preprocess):
     
 def get_matched_image_paths(index, embedding, num_results):
     # Search for the top n images that are similar to the text_embedding
-    similarities, indices = index.search(embedding.reshape(1, -1), num_results)    #2 represent top n results required
+    similarities, indices = index.search(embedding.reshape(1, -1), num_results)             #2 represent top n results required
     indices_similarities = list(zip(indices[0], similarities[0]))
-    indices_similarities.sort(key=lambda x: x[1], reverse=True)                            # Sort based on the distances
+    indices_similarities.sort(key=lambda x: x[1], reverse=True)                             # Sort based on the distances
 
     # Get the image paths for the top n images from csv file
     return get_image_paths_from_csv(indices_similarities)  
