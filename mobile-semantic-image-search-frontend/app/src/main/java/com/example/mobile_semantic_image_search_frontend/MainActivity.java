@@ -15,6 +15,10 @@ import android.widget.ImageButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.flexbox.FlexDirection;
+import com.google.android.flexbox.FlexboxLayoutManager;
 
 import java.io.File;
 
@@ -32,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Activity context = this;
 
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             // Permission is not granted, request it
@@ -41,9 +46,27 @@ public class MainActivity extends AppCompatActivity {
         EditText editText = findViewById(R.id.editText);
         ImageButton sendButton = findViewById(R.id.sendButton);
         ImageButton cameraButton = findViewById(R.id.cameraButton);
+        RecyclerView imageRegion = findViewById(R.id.imageRegion);
 
-        Activity context = this;
+        setOnClickListenerSendButton(editText, sendButton);
+        setOnClickListenerCameraButton(context, cameraButton);
+        setupImageRegion(imageRegion);
+    }
 
+    private void setupImageRegion(RecyclerView imageRegion){
+        imageRegion.setLayoutManager(new FlexboxLayoutManager(this, FlexDirection.ROW));
+    }
+
+    private static void setOnClickListenerCameraButton(Activity context, ImageButton cameraButton) {
+        cameraButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CameraUtil.dispatchTakePictureIntent(context);
+            }
+        });
+    }
+
+    private void setOnClickListenerSendButton(EditText editText, ImageButton sendButton) {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -57,15 +80,8 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
-
-        cameraButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                CameraUtil.dispatchTakePictureIntent(context);
-            }
-        });
-
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

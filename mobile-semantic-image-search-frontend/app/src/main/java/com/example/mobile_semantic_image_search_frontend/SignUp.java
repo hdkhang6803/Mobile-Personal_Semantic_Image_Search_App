@@ -110,6 +110,9 @@ public class SignUp extends AppCompatActivity {
                                 } else {
                                     // If sign in fails, display a message to the user.
                                     Log.w("SIGNUP", "createUserWithEmail:failure", task.getException());
+                                    // test UI
+                                    finish();
+                                    startActivity(new Intent(SignUp.this, LogIn.class));
 
                                 }
                             }
