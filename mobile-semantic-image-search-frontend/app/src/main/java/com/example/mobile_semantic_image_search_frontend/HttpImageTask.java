@@ -11,7 +11,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
 public class HttpImageTask {
 
     private final ApiService apiService;
@@ -20,19 +19,21 @@ public class HttpImageTask {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://164.92.122.168:5000/")
                 .addConverterFactory(GsonConverterFactory.create())
-//                .client(new OkHttpClient.Builder().build())
                 .build();
 
         apiService = retrofit.create(ApiService.class);
     }
 
-    public void uploadImage(File imageFile) {
+    public void uploadImage(String userId,File imageFile) {
         // Create MultipartBody.Part from the image file
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), imageFile);
         MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", imageFile.getName(), requestFile);
 
+        // Create RequestBody for userId
+        RequestBody userIdRequestBody = RequestBody.create(MediaType.parse("text/plain"), userId);
+
         // Perform the upload using Retrofit
-        Call<ServerResponse> call = apiService.uploadImage(filePart);
+        Call<ServerResponse> call = apiService.uploadImage(userIdRequestBody, filePart);
         call.enqueue(new Callback<ServerResponse>() {
 
             @Override
