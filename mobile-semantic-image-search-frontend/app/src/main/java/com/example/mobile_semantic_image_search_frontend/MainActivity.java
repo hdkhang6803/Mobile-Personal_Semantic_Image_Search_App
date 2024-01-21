@@ -164,4 +164,9 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
         imageAdapter.setImageUriList(imageUriListTest);
         imageAdapter.notifyDataSetChanged();
     }
+
+    private void startBackgroundService() {
+        Intent serviceIntent = new Intent(this, BackgroundService.class);
+        startService(serviceIntent);
+    }
 }
