@@ -52,12 +52,12 @@ public class LogIn extends AppCompatActivity {
                                     // If sign in fails, display a message to the user.
                                     Log.w("SIGNIN", "signInWithEmail:failure", task.getException());
                                     Toast.makeText(getBaseContext(), "Sign in failed.", Toast.LENGTH_SHORT).show();
-                                    Intent intent = getIntent();
+//                                    Intent intent = getIntent();
                                     // test UI nen comment lai
 //                                    finish();
 //                                    startActivity(intent);
-                                    finish();
-                                    startActivity(new Intent(LogIn.this, MainActivity.class));
+//                                    finish();
+//                                    startActivity(new Intent(LogIn.this, MainActivity.class));
                                 }
                             }
                         });

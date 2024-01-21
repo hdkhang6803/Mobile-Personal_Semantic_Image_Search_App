@@ -39,7 +39,7 @@ public class HttpImageTask {
             public void onResponse(Call<ServerResponse> call, retrofit2.Response<ServerResponse> response) {
                 try {
                     if (response.isSuccessful()) {
-                        ServerResponse serverResponse = response.body();
+                        ServerResponse  serverResponse = response.body();
                         if (serverResponse != null) {
                             String message = serverResponse.getMessage();
                             Log.d("HTTP Image Response", "Server Response: " + message);

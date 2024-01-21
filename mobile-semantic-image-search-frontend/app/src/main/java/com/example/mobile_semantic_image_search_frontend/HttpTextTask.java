@@ -13,13 +13,6 @@ import retrofit2.HttpException;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 public class HttpTextTask  {
-//    private final String inputData;
-//    private final Context activity;
-//
-//    public HttpTextTask(@NotNull String inputData, @NotNull Context activity) {
-//        this.inputData = inputData;
-//        this.activity = activity;
-//    }
 
     private final ApiService apiService;
     private final Context context;
@@ -77,6 +70,16 @@ public class HttpTextTask  {
                 }
             }
         });
+    }
+
+    public interface TextQueryTaskListener {
+        void onTextQueryResponseReceived(List<String> imageUriList);
+    }
+
+    private void notifyTextQueryResponseReceived(List<String> imageUriList) {
+        if (textQueryTaskListener != null) {
+            textQueryTaskListener.onTextQueryResponseReceived(imageUriList);
+        }
     }
 
 }
