@@ -2,6 +2,7 @@ package com.example.mobile_semantic_image_search_frontend;
 
 import static com.example.mobile_semantic_image_search_frontend.CameraUtil.REQUEST_IMAGE_CAPTURE;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -28,6 +29,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements HttpTextTask.TextQueryTaskListener{
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 124;
+    private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 124;
     private HttpImageTask httpImageTask = new HttpImageTask(this);
     private HttpTextTask httpTextTask = new HttpTextTask(this, this);
     private EditText editText;
@@ -47,19 +49,16 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
             // Permission is not granted, request it
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
         }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted, request it
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
+        }
 
         editText = findViewById(R.id.editText);
         sendButton = findViewById(R.id.sendButton);
         cameraButton = findViewById(R.id.cameraButton);
         imageRegion = findViewById(R.id.imageRegion);
-        List<String> uris = new ArrayList<>();
-        uris.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        uris.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        uris.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        uris.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        uris.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        uris.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        imageAdapter = new ImageAdapter(this, uris);
+        imageAdapter = new ImageAdapter(this, new ArrayList<>());
 
         setOnClickListenerSendButton(editText, sendButton);
         setOnClickListenerCameraButton(context, cameraButton);
@@ -115,10 +114,21 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
 
     @Override
     public void onTextQueryResponseReceived(List<String> imageUriList) {
-        for (String uri : imageUriList){
-            Log.d("uri list", uri);
+
+        // đoạn này dùng để test
+        List<String> imageUriListTest = new ArrayList<>();
+        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705754144977.jpg");
+        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
+        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+        for (String uri : imageUriListTest){
+            Log.d("uri list test", uri);
         }
-        imageAdapter.setImageUriList(imageUriList);
+
+//        for (String uri : imageUriList){
+//            Log.d("uri list", uri);
+//        }
+        imageAdapter.setImageUriList(imageUriListTest);
         imageAdapter.notifyDataSetChanged();
     }
 }

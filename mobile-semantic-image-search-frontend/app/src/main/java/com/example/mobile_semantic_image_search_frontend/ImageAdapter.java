@@ -34,7 +34,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
         String imageUriString = imageUriList.get(position);
-        File imageFile = new File("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+        File imageFile = new File(imageUriString);
 
         Picasso.get()
                 .load(Uri.fromFile(imageFile))  // Convert the File to a Uri
