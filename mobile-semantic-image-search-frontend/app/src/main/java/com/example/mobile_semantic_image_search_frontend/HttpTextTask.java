@@ -3,6 +3,7 @@ package com.example.mobile_semantic_image_search_frontend;
 import android.content.Context;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.MediaType;
