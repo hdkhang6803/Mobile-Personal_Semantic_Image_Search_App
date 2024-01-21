@@ -13,11 +13,11 @@ import retrofit2.Callback;
 import retrofit2.HttpException;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-public class HttpTextTask  {
+public class HttpTextTask {
 
     private final ApiService apiService;
     private final Context context;
-    private TextQueryTaskListener textQueryTaskListener;
+    private final TextQueryTaskListener textQueryTaskListener;
 
     public HttpTextTask(Context context, TextQueryTaskListener textQueryTaskListener) {
         this.context = context;
@@ -25,17 +25,14 @@ public class HttpTextTask  {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://164.92.122.168:5000/")
                 .addConverterFactory(GsonConverterFactory.create())
-//                .client(new OkHttpClient.Builder().build())
                 .build();
 
         apiService = retrofit.create(ApiService.class);
     }
-    public void sendTextData(String textData) {
-        // Create RequestBody for the text data
-        RequestBody textRequestBody = RequestBody.create(MediaType.parse("text/plain"), textData);
 
+    public void sendTextData(String userId, String textData) {
         // Perform the upload using Retrofit
-        Call<ServerResponse> call = apiService.sendTextData(textRequestBody.toString());
+        Call<ServerResponse> call = apiService.sendTextData(userId, textData);
         call.enqueue(new Callback<ServerResponse>() {
 
             @Override
@@ -82,5 +79,4 @@ public class HttpTextTask  {
             textQueryTaskListener.onTextQueryResponseReceived(imageUriList);
         }
     }
-
 }

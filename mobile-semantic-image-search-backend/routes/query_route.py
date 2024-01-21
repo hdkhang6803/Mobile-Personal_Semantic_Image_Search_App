@@ -7,6 +7,7 @@ import faiss
 import pandas as pd
 from io import BytesIO
 import base64
+import matplotlib.pyplot as plt
 
 
 def txt_query_search_route(app, model, index):
@@ -16,9 +17,12 @@ def txt_query_search_route(app, model, index):
         # print("Headers:", request.headers)
         # print("Data:", request.data)
 
-        # text_query = request.data.decode('utf-8')
-        # print("TEXT: ", text_query)
+         # Get userId from request parameters
+        user_id = request.args.get('userId')
+        
+        # Get textData from the request body
         text_query = request.get_data(as_text=True)
+        print("USERID: ", user_id)
         print("TEXT: ", text_query)
         
         txt_embedding = calculate_txt_embeddings(model=model, text_query=text_query)
@@ -28,6 +32,7 @@ def txt_query_search_route(app, model, index):
             'type': 'text_query_uri_list',
             'status': 'Text query uploaded successfully', 
             'text_query': text_query,
+            'userId': user_id,
             'image_uris': image_uri_list
             })
     
@@ -36,6 +41,8 @@ def img_query_search_route(app, model, index, preprocess):
     def img_query_return_result():
         # print("GEt here", request.form['file'])
         try:
+            user_id = request.form['userId']
+            print("USERID: ", user_id)
             # Get the base64-encoded image data from the request
             encoded_image = request.form['file']
 
@@ -45,8 +52,12 @@ def img_query_search_route(app, model, index, preprocess):
             # Create a BytesIO object
             image_stream = BytesIO(binary_data)
 
+            
             # Open the image using PIL
             img_query = Image.open(image_stream)
+            # plt.imshow(img_query)
+            # plt.axis('off')
+            # plt.show()
         
             img_embedding = calculate_img_embeddings(model=model, preprocess=preprocess, raw_image=img_query, device='cpu')
             image_uri_list = get_matched_image_paths(index, img_embedding, num_results=100)
@@ -71,7 +82,7 @@ def get_matched_image_paths(index, embedding, num_results):
 
 def get_image_paths_from_csv(indices_similarities):
     # Read the csv file
-    df = pd.read_csv(CSV_FILE_NAME)
+    df = pd.read_csv(CSV_FILE_NAME, header=True, names=['image_path'])
 
     # Get the image paths for the top n images
     matched_image_paths = []
