@@ -6,7 +6,6 @@ import android.util.Log;
 import java.io.File;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -41,9 +40,10 @@ public class HttpImageTask {
                 if (response.isSuccessful()) {
                     ServerResponse serverResponse = response.body();
                     if (serverResponse != null) {
-                        String message = serverResponse.getMessage();
-                        Log.d("HTTP Image Response", "Server Response: " + message);
+                        String status = serverResponse.getStatus();
+                        Log.d("HTTP Image Response", "Server Response: " + status);
                         // Handle the server response here
+
                     }
                 } else {
                     Log.e("HTTP Image ERROR", "Server Response Code: " + response.code());

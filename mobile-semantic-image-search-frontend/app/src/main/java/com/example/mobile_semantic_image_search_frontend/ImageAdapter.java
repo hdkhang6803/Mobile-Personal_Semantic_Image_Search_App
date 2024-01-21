@@ -1,6 +1,7 @@
 package com.example.mobile_semantic_image_search_frontend;
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,14 +11,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.List;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
 
-    private final Context context;
-    private final List<Uri> imageUriList;
+    private Context context;
+    private List<String> imageUriList;
 
-    public ImageAdapter(Context context, List<Uri> imageUriList) {
+    public ImageAdapter(Context context, List<String> imageUriList) {
         this.context = context;
         this.imageUriList = imageUriList;
     }
@@ -31,20 +33,25 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
-        Uri imageUri = imageUriList.get(position);
+        String imageUriString = imageUriList.get(position);
+        File imageFile = new File("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+
         Picasso.get()
-                .load(imageUri)
+                .load(Uri.fromFile(imageFile))  // Convert the File to a Uri
                 .into(holder.imageView, new Callback() {
                     @Override
                     public void onSuccess() {
+                        Log.d("load image success", "");
                         holder.imageView.setVisibility(View.VISIBLE);
                     }
 
                     @Override
                     public void onError(Exception e) {
+                        Log.e("load image error", "Error loading image: " + e.getMessage());
                         holder.imageView.setVisibility(View.GONE);
                     }
                 });
+
     }
 
     @Override
@@ -59,5 +66,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             super(itemView);
             imageView = itemView.findViewById(R.id.imageView);
         }
+    }
+
+    public void setImageUriList(List<String> imageUriList){
+        this.imageUriList = imageUriList;
     }
 }

@@ -1,23 +1,15 @@
 package com.example.mobile_semantic_image_search_frontend;
 
 import android.content.Context;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.util.Log;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.io.IOException;
 import java.util.List;
 
 import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.HttpException;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 public class HttpTextTask  {
@@ -31,9 +23,11 @@ public class HttpTextTask  {
 
     private final ApiService apiService;
     private final Context context;
+    private TextQueryTaskListener textQueryTaskListener;
 
-    public HttpTextTask(Context context) {
+    public HttpTextTask(Context context, TextQueryTaskListener textQueryTaskListener) {
         this.context = context;
+        this.textQueryTaskListener = textQueryTaskListener;
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://164.92.122.168:5000/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -55,10 +49,10 @@ public class HttpTextTask  {
                 if (response.isSuccessful()) {
                     ServerResponse serverResponse = response.body();
                     if (serverResponse != null) {
-                        String message = serverResponse.getMessage();
-                        Log.d("HTTP Text Response", "Server Response: " + message);
-                        // Handle the server response here
-                        List<Uri> imageUriList = serverResponse.getImageUriListFromMessage(context);
+                        String status = serverResponse.getStatus();
+                        Log.d("HTTP Text Response", "Server Response: " + status);
+                        List<String> imageUriList = serverResponse.getImageUris();
+                        notifyTextQueryResponseReceived(imageUriList);
                     }
                 } else {
                     Log.e("HTTP Text Server error", "Server Response Code: " + response.code());
@@ -117,4 +111,17 @@ public class HttpTextTask  {
 //        super.onPostExecute(result);
 //        Log.d("AAAA", "AsyncTask finished: " + result);
 //    }
+
+
+
+    public interface TextQueryTaskListener {
+        void onTextQueryResponseReceived(List<String> imageUriList);
+    }
+
+    private void notifyTextQueryResponseReceived(List<String> imageUriList) {
+        if (textQueryTaskListener != null) {
+            textQueryTaskListener.onTextQueryResponseReceived(imageUriList);
+        }
+    }
+
 }

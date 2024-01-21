@@ -15,22 +15,27 @@ import android.widget.ImageButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexboxLayoutManager;
 
 import java.io.File;
-
-import kotlinx.coroutines.CoroutineScope;
-import kotlinx.coroutines.Dispatchers;
-
+import java.util.ArrayList;
+import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements HttpTextTask.TextQueryTaskListener{
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 124;
     private HttpImageTask httpImageTask = new HttpImageTask(this);
-    private HttpTextTask httpTextTask = new HttpTextTask(this);
+    private HttpTextTask httpTextTask = new HttpTextTask(this, this);
+    private EditText editText;
+    private ImageButton sendButton;
+    private ImageButton cameraButton;
+    private RecyclerView imageRegion;
+    private ImageAdapter imageAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,10 +48,18 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
         }
 
-        EditText editText = findViewById(R.id.editText);
-        ImageButton sendButton = findViewById(R.id.sendButton);
-        ImageButton cameraButton = findViewById(R.id.cameraButton);
-        RecyclerView imageRegion = findViewById(R.id.imageRegion);
+        editText = findViewById(R.id.editText);
+        sendButton = findViewById(R.id.sendButton);
+        cameraButton = findViewById(R.id.cameraButton);
+        imageRegion = findViewById(R.id.imageRegion);
+        List<String> uris = new ArrayList<>();
+        uris.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+        uris.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+        uris.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+        uris.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+        uris.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+        uris.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+        imageAdapter = new ImageAdapter(this, uris);
 
         setOnClickListenerSendButton(editText, sendButton);
         setOnClickListenerCameraButton(context, cameraButton);
@@ -54,7 +67,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupImageRegion(RecyclerView imageRegion){
-        imageRegion.setLayoutManager(new FlexboxLayoutManager(this, FlexDirection.ROW));
+        imageRegion.setAdapter(imageAdapter);
+        imageRegion.setLayoutManager(new GridLayoutManager(this, 3));
     }
 
     private static void setOnClickListenerCameraButton(Activity context, ImageButton cameraButton) {
@@ -99,4 +113,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onTextQueryResponseReceived(List<String> imageUriList) {
+        for (String uri : imageUriList){
+            Log.d("uri list", uri);
+        }
+        imageAdapter.setImageUriList(imageUriList);
+        imageAdapter.notifyDataSetChanged();
+    }
 }
