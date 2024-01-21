@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.mobile_semantic_image_search_frontend"
-        minSdk = 33
+        minSdk = 30
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -47,6 +47,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.7.1"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-database")
-
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
+    implementation("com.squareup.picasso:picasso:2.71828")
 
 }
