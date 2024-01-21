@@ -52,5 +52,9 @@
             android:background="@color/white"
             android:src="@drawable/add_photo"
             android:contentDescription="Camera"/>
+
+
     </LinearLayout>
+
+    
 </RelativeLayout>

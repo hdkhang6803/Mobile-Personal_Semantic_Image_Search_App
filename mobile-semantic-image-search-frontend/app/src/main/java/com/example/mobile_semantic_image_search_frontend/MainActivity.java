@@ -20,6 +20,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.File;
 
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 124;
     private HttpImageTask httpImageTask = new HttpImageTask(this);
     private HttpTextTask httpTextTask = new HttpTextTask(this);
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
             // Permission is not granted, request it
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
         }
+        mAuth = FirebaseAuth.getInstance();
+
+//        Log.e("USER", mAuth.getCurrentUser().getUid());
 
         TextInputLayout textInputLayout = findViewById(R.id.textInputLayout);
         EditText editText = findViewById(R.id.editText);
