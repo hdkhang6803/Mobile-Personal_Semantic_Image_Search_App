@@ -9,6 +9,7 @@
     android:background="@android:color/white">
 
     <LinearLayout
+        android:id="@+id/searchRegion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -53,4 +54,12 @@
             android:src="@drawable/add_photo"
             android:contentDescription="Camera"/>
     </LinearLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/imageRegion"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_margin="4dp"
+        android:layout_below="@+id/searchRegion">
+    </androidx.recyclerview.widget.RecyclerView>
 </RelativeLayout>

@@ -43,6 +43,7 @@ public class LogIn extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d("SIGNIN", "signInWithEmail:success");
+                                    Toast.makeText(getBaseContext(), "Sign in succeeded.", Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(this_act, MainActivity.class);
                                     startActivity(intent);
                                     finish();
@@ -50,14 +51,13 @@ public class LogIn extends AppCompatActivity {
                                 } else {
                                     // If sign in fails, display a message to the user.
                                     Log.w("SIGNIN", "signInWithEmail:failure", task.getException());
-                                    CharSequence text = "Sign in failed!";
-                                    int duration = Toast.LENGTH_SHORT;
-
-                                    Toast toast = Toast.makeText(getBaseContext(), text, duration);
-                                    toast.show();
+                                    Toast.makeText(getBaseContext(), "Sign in failed.", Toast.LENGTH_SHORT).show();
                                     Intent intent = getIntent();
+                                    // test UI nen comment lai
+//                                    finish();
+//                                    startActivity(intent);
                                     finish();
-                                    startActivity(intent);
+                                    startActivity(new Intent(LogIn.this, MainActivity.class));
                                 }
                             }
                         });
