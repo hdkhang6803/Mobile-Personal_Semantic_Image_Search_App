@@ -13,6 +13,12 @@ public class ServerResponse {
     @SerializedName("image_uris")
     private List<String> image_uris;
 
+    private String message;
+
+    public String getMessage() {
+        return message;
+    }
+
     public String getStatus() {
         return status;
     }

@@ -22,9 +22,6 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.flexbox.FlexDirection;
-import com.google.android.flexbox.FlexboxLayoutManager;
-
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -33,8 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+
 public class MainActivity extends AppCompatActivity implements HttpTextTask.TextQueryTaskListener{
-    private static final int CAMERA_PERMISSION_REQUEST_CODE = 124;
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 122;
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 124;
     private HttpImageTask httpImageTask = new HttpImageTask(this);
     private HttpTextTask httpTextTask = new HttpTextTask(this, this);
@@ -45,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
     private ImageAdapter imageAdapter;
 
     private FirebaseAuth mAuth;
+    static InputMethodManager imm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
         }
 
         editText = findViewById(R.id.editText);
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
         editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -84,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
         imageAdapter = new ImageAdapter(this, new ArrayList<>());
 
         setOnClickListenerSendButton(editText, sendButton);
-        setOnClickListenerCameraButton(context, cameraButton);
+        setOnClickListenerCameraButton(context, editText, cameraButton);
         setupImageRegion(imageRegion);
     }
 
@@ -93,10 +92,12 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
         imageRegion.setLayoutManager(new GridLayoutManager(this, 3));
     }
 
-    private static void setOnClickListenerCameraButton(Activity context, ImageButton cameraButton) {
+    private static void setOnClickListenerCameraButton(Activity context, EditText editText, ImageButton cameraButton) {
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                editText.clearFocus();
+                imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
                 CameraUtil.dispatchTakePictureIntent(context);
             }
         });
@@ -121,16 +122,11 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
             }
         });
 
-        cameraButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                editText.clearFocus();
-                imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
-                CameraUtil.dispatchTakePictureIntent(context);
-            }
-        });
+
 
     }
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
