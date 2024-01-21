@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
                 new Handler(getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        httpTextTask.sendTextData(textQuery);
+                        httpTextTask.sendTextData(mAuth.getCurrentUser().getUid(),textQuery);
                     }
                 });
             }
@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
                 new Handler(getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        httpImageTask.uploadImage(photoFile);
+                        httpImageTask.uploadImage(mAuth.getCurrentUser().getUid(),photoFile);
                     }
                 });
             }

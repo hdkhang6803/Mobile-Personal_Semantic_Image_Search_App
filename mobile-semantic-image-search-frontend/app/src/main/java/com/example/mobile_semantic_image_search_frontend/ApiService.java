@@ -6,12 +6,14 @@ import retrofit2.http.Body;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
+import retrofit2.http.Query;
+import okhttp3.RequestBody;
 
 public interface ApiService {
     @Multipart
+    @POST("img_query")
+    Call<ServerResponse> uploadImage(@Part("userId") RequestBody userId,
+                                               @Part MultipartBody.Part filePart);
     @POST("txt_query")
-    Call<ServerResponse> uploadImage(@Part MultipartBody.Part filePart);
-
-    @POST("txt_query")
-    Call<ServerResponse> sendTextData(@Body String data);
+    Call<ServerResponse> sendTextData(@Query("userId") String userId, @Body String textData);
 }
