@@ -4,14 +4,17 @@ import static com.example.mobile_semantic_image_search_frontend.CameraUtil.REQUE
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -21,6 +24,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexboxLayoutManager;
+
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -49,12 +54,24 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
             // Permission is not granted, request it
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
         }
+        TextInputLayout textInputLayout = findViewById(R.id.textInputLayout);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             // Permission is not granted, request it
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
         }
 
         editText = findViewById(R.id.editText);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                // Adjust maxLines based on focus state
+                editText.setMaxLines(hasFocus ? Integer.MAX_VALUE : 1);
+            }
+        });
+
+
         sendButton = findViewById(R.id.sendButton);
         cameraButton = findViewById(R.id.cameraButton);
         imageRegion = findViewById(R.id.imageRegion);
@@ -84,6 +101,10 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
             @Override
             public void onClick(View view) {
                 String textQuery = editText.getText().toString();
+                editText.clearFocus();
+                imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+
+                Toast.makeText(getApplicationContext(), "The query is sent, please wait", Toast.LENGTH_SHORT).show();
                 // Handle text query submission here
                 new Handler(getMainLooper()).post(new Runnable() {
                     @Override
@@ -93,8 +114,17 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
                 });
             }
         });
-    }
 
+        cameraButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editText.clearFocus();
+                imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+                CameraUtil.dispatchTakePictureIntent(context);
+            }
+        });
+
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -102,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
 
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
             if (photoFile != null) {
+                Toast.makeText(getApplicationContext(), "The image query is sent, please wait", Toast.LENGTH_SHORT).show();
                 new Handler(getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {

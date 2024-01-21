@@ -46,16 +46,23 @@ public class HttpTextTask  {
 
             @Override
             public void onResponse(Call<ServerResponse> call, retrofit2.Response<ServerResponse> response) {
-                if (response.isSuccessful()) {
-                    ServerResponse serverResponse = response.body();
-                    if (serverResponse != null) {
-                        String status = serverResponse.getStatus();
-                        Log.d("HTTP Text Response", "Server Response: " + status);
-                        List<String> imageUriList = serverResponse.getImageUris();
+                try {
+                    if (response.isSuccessful()) {
+                        ServerResponse serverResponse = response.body();
+                        if (serverResponse != null) {
+                            String status = serverResponse.getStatus();
+                            Log.e("HTTP Text Response", "Server Response: " + status);
+                            List<String> imageUriList = serverResponse.getImageUris();
                         notifyTextQueryResponseReceived(imageUriList);
+                        }
+                    } else {
+                        Log.e("HTTP Text Server error", "Server Response Code: " + response.code());
                     }
-                } else {
-                    Log.e("HTTP Text Server error", "Server Response Code: " + response.code());
+                } finally {
+                    // Close the response body to release resources
+                    if (response.errorBody() != null) {
+                        response.errorBody().close();
+                    }
                 }
             }
 
@@ -70,58 +77,6 @@ public class HttpTextTask  {
                 }
             }
         });
-    }
-
-//
-//    @Nullable
-//    @Override
-//    protected String doInBackground(Void... params) {
-//        try {
-//            // Create Retrofit instance
-//            Retrofit retrofit = new Retrofit.Builder()
-//                    .baseUrl("http://164.92.122.168:5000/")
-//                    .addConverterFactory(GsonConverterFactory.create())
-//                    .build();
-//
-//            // Create ApiService using Retrofit
-//            ApiService apiService = retrofit.create(ApiService.class);
-//
-//            // Make the network request using Retrofit
-//            Call<ServerResponse> call = apiService.sendTextData(inputData);
-//            Response<ServerResponse> response = call.execute();
-//
-//            if (response.isSuccessful()) {
-//                ServerResponse serverResponse = response.body();
-//                if (serverResponse != null) {
-//                    return serverResponse.getMessage();
-//                } else {
-//                    return "ERROR: Server response is null";
-//                }
-//            } else {
-//                return "ERROR: Server Response Code - " + response.code();
-//            }
-//        } catch (IOException e) {
-//            Log.e("HTTP", "Error: " + e.getMessage());
-//            return "ERROR: " + e.getMessage();
-//        }
-//    }
-//
-//    @Override
-//    protected void onPostExecute(String result) {
-//        super.onPostExecute(result);
-//        Log.d("AAAA", "AsyncTask finished: " + result);
-//    }
-
-
-
-    public interface TextQueryTaskListener {
-        void onTextQueryResponseReceived(List<String> imageUriList);
-    }
-
-    private void notifyTextQueryResponseReceived(List<String> imageUriList) {
-        if (textQueryTaskListener != null) {
-            textQueryTaskListener.onTextQueryResponseReceived(imageUriList);
-        }
     }
 
 }

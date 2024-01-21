@@ -37,16 +37,22 @@ public class HttpImageTask {
 
             @Override
             public void onResponse(Call<ServerResponse> call, retrofit2.Response<ServerResponse> response) {
-                if (response.isSuccessful()) {
-                    ServerResponse serverResponse = response.body();
-                    if (serverResponse != null) {
-                        String status = serverResponse.getStatus();
-                        Log.d("HTTP Image Response", "Server Response: " + status);
-                        // Handle the server response here
-
+                try {
+                    if (response.isSuccessful()) {
+                        ServerResponse serverResponse = response.body();
+                        if (serverResponse != null) {
+                            String message = serverResponse.getMessage();
+                            Log.d("HTTP Image Response", "Server Response: " + message);
+                            // Handle the server response here
+                        }
+                    } else {
+                        Log.e("HTTP Image ERROR", "Server Response Code: " + response.code());
                     }
-                } else {
-                    Log.e("HTTP Image ERROR", "Server Response Code: " + response.code());
+                } finally {
+                    // Close the response body to release resources
+                    if (response.errorBody() != null) {
+                        response.errorBody().close();
+                    }
                 }
             }
 
