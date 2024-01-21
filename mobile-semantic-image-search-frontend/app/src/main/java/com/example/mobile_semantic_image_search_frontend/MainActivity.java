@@ -3,18 +3,23 @@ package com.example.mobile_semantic_image_search_frontend;
 import static com.example.mobile_semantic_image_search_frontend.CameraUtil.REQUEST_IMAGE_CAPTURE;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.File;
 
@@ -38,7 +43,19 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
         }
 
+        TextInputLayout textInputLayout = findViewById(R.id.textInputLayout);
         EditText editText = findViewById(R.id.editText);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                // Adjust maxLines based on focus state
+                editText.setMaxLines(hasFocus ? Integer.MAX_VALUE : 1);
+            }
+        });
+
+
         ImageButton sendButton = findViewById(R.id.sendButton);
         ImageButton cameraButton = findViewById(R.id.cameraButton);
 
@@ -48,6 +65,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String textQuery = editText.getText().toString();
+                editText.clearFocus();
+                imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+
+                Toast.makeText(getApplicationContext(), "The query is sent, please wait", Toast.LENGTH_SHORT).show();
                 // Handle text query submission here
                 new Handler(getMainLooper()).post(new Runnable() {
                     @Override
@@ -61,6 +82,8 @@ public class MainActivity extends AppCompatActivity {
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                editText.clearFocus();
+                imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
                 CameraUtil.dispatchTakePictureIntent(context);
             }
         });
@@ -73,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
             if (photoFile != null) {
+                Toast.makeText(getApplicationContext(), "The image query is sent, please wait", Toast.LENGTH_SHORT).show();
                 new Handler(getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
