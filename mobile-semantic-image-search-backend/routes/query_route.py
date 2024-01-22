@@ -8,9 +8,10 @@ import pandas as pd
 from io import BytesIO
 import base64
 import matplotlib.pyplot as plt
+from helper.index_cache_helper import load_index
 
 
-def txt_query_search_route(app, model, index):
+def txt_query_search_route(app, model, index_cache, userIds):
     @app.route('/txt_query', methods=['POST'])
     def txt_query_return_result():
         # print("Content-Type:", request.content_type)
@@ -25,18 +26,28 @@ def txt_query_search_route(app, model, index):
         print("USERID: ", user_id)
         print("TEXT: ", text_query)
         
-        txt_embedding = calculate_txt_embeddings(model=model, text_query=text_query)
-        image_uri_list = get_matched_image_paths(index, txt_embedding, num_results=100)
-
-        return jsonify({
+        index = load_index(user_id, userIds, index_cache)
+        if index == None:
+            print("NONE INDEX")
+            return jsonify({
             'type': 'text_query_uri_list',
-            'status': 'Text query uploaded successfully', 
+            'status': 'Text query uploaded successfully but no index found', 
             'text_query': text_query,
             'userId': user_id,
-            'image_uris': image_uri_list
+            'image_uris': None
             })
+        else:
+            txt_embedding = calculate_txt_embeddings(model=model, text_query=text_query)
+            image_uri_list = get_matched_image_paths(index, txt_embedding, num_results=100)
+            return jsonify({
+                'type': 'text_query_uri_list',
+                'status': 'Text query uploaded successfully', 
+                'text_query': text_query,
+                'userId': user_id,
+                'image_uris': image_uri_list
+                })
     
-def img_query_search_route(app, model, index, preprocess):
+def img_query_search_route(app, model, index_cache, userIds, preprocess):
     @app.route('/img_query', methods=['POST'])
     def img_query_return_result():
         # print("GEt here", request.form['file'])
@@ -59,23 +70,30 @@ def img_query_search_route(app, model, index, preprocess):
             # plt.axis('off')
             # plt.show()
         
-            img_embedding = calculate_img_embeddings(model=model, preprocess=preprocess, raw_image=img_query, device='cpu')
-            image_uri_list = get_matched_image_paths(index, img_embedding, num_results=100)
-        
-            return jsonify({
+            index = load_index(user_id, userIds, index_cache)
+            if index == None:
+                return jsonify({
                 'type': 'image_query_uri_list',
-                'status': 'Image query uploaded successfully', 
-                'image_uris': image_uri_list
+                'status': 'Image query uploaded successfully but no index found', 
+                'image_uris': None
                 })
+            else:
+                img_embedding = calculate_img_embeddings(model=model, preprocess=preprocess, raw_image=img_query, device='cpu')
+                image_uri_list = get_matched_image_paths(index, img_embedding, num_results=100)        
+                return jsonify({
+                    'type': 'image_query_uri_list',
+                    'status': 'Image query uploaded successfully', 
+                    'image_uris': image_uri_list
+                    })
     
         except Exception as e:
             return jsonify({'error': str(e)})
     
 def get_matched_image_paths(index, embedding, num_results):
     # Search for the top n images that are similar to the text_embedding
-    similarities, indices = index.search(embedding.reshape(1, -1), num_results)    #2 represent top n results required
+    similarities, indices = index.search(embedding.reshape(1, -1), num_results)             #2 represent top n results required
     indices_similarities = list(zip(indices[0], similarities[0]))
-    indices_similarities.sort(key=lambda x: x[1], reverse=True)                            # Sort based on the distances
+    indices_similarities.sort(key=lambda x: x[1], reverse=True)                             # Sort based on the distances
 
     # Get the image paths for the top n images from csv file
     return get_image_paths_from_csv(indices_similarities)  

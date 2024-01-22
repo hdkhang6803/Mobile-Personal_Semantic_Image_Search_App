@@ -1,25 +1,36 @@
 from flask import Flask, request, jsonify
 import os
 from routes.update_index_route import create_update_index_routes
-from globals import CACHE_FOLDER_NAME, INDEX_FILE_NAME
+from globals import CACHE_FOLDER_NAME, INDEX_FILE_NAME, USERID_FILE_NAME
 from helper.faiss_helper import load_index
 from routes.query_route import txt_query_search_route, img_query_search_route
-
+import pandas as pd
 import open_clip
 device = "cpu"
 model, _, preprocess = open_clip.create_model_and_transforms('ViT-B/16', pretrained='laion2b_s34b_b88k')
 
 app = Flask(__name__)
 
-# Set the path for the cache folder
-
+# Set the path for the image cache folder
 if not os.path.exists(CACHE_FOLDER_NAME):
     os.makedirs(CACHE_FOLDER_NAME)
-index = load_index(INDEX_FILE_NAME)
 
-create_update_index_routes(app, model, index, preprocess)
-txt_query_search_route(app=app, model=model, index=index)
-img_query_search_route(app=app, model=model, index=index, preprocess=preprocess)
+# Init the index cache
+index_cache = {}
+
+# Load the list of user ID
+userIDs_path = os.path.join('data', USERID_FILE_NAME)
+if not os.path.exists(userIDs_path):
+    df = pd.DataFrame(columns=['userId'])
+    df.to_csv(userIDs_path, index=False)
+userIds = pd.read_csv(userIDs_path).to_numpy().flatten().tolist()
+print(userIds)
+
+
+
+create_update_index_routes(app, model, index_cache, userIds, preprocess)
+txt_query_search_route(app=app, model=model, index_cache=index_cache, userIds=userIds)
+img_query_search_route(app=app, model=model, index_cache=index_cache, userIds=userIds, preprocess=preprocess)
     
 # @app.route('/upload', methods=['POST'])
 # def upload_image():
