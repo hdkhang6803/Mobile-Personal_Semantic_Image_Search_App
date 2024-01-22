@@ -51,6 +51,7 @@ def create_update_index_routes(app, model, index_cache, userIds, preprocess):
     def update_index():
         orig_image_paths, cache_image_paths = get_image_path_from_request(request)
         # userIds = request.files.getlist('userId')
+        print(request)
         userId = request.form.get('userId')
 
         print("userId: ", userId)
