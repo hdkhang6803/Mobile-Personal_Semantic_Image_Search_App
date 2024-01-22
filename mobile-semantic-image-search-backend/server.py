@@ -26,9 +26,9 @@ userIds = pd.read_csv(userIDs_path).to_numpy().flatten().tolist()
 
 
 
-create_update_index_routes(app, model, index_cache, preprocess)
-txt_query_search_route(app=app, model=model, index_cache=index_cache)
-img_query_search_route(app=app, model=model, index_cache=index_cache, preprocess=preprocess)
+create_update_index_routes(app, model, index_cache, userIds, preprocess)
+txt_query_search_route(app=app, model=model, index_cache=index_cache, userIds=userIds)
+img_query_search_route(app=app, model=model, index_cache=index_cache, userIds=userIds, preprocess=preprocess)
     
 # @app.route('/upload', methods=['POST'])
 # def upload_image():

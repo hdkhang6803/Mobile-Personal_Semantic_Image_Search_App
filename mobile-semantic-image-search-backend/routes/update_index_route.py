@@ -45,7 +45,7 @@ def get_image_path_from_request(request):
 
 
 
-def create_update_index_routes(app, model, index_cache, preprocess):
+def create_update_index_routes(app, model, index_cache, userIds, preprocess):
     
     @app.route('/update_index', methods=['POST'])
     def update_index():
@@ -65,7 +65,7 @@ def create_update_index_routes(app, model, index_cache, preprocess):
             # Delete the file at cache_image_path
             os.remove(cache_image_path)
 
-            index = load_index(userId, index_cache)
+            index = load_index(user_id, userIds, index_cache)
             add_to_csv(userId, orig_image_path)
             add_to_faiss_index(userId, load_index(userId, index), img_embedding)
 

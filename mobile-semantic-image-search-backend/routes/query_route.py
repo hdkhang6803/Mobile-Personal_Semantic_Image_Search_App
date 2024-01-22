@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from data.index_cache_helper import load_index
 
 
-def txt_query_search_route(app, model, index_cache):
+def txt_query_search_route(app, model, index_cache, userIds):
     @app.route('/txt_query', methods=['POST'])
     def txt_query_return_result():
         # print("Content-Type:", request.content_type)
@@ -26,7 +26,7 @@ def txt_query_search_route(app, model, index_cache):
         print("USERID: ", user_id)
         print("TEXT: ", text_query)
         
-        index = load_index(user_id, index_cache)
+        index = load_index(user_id, userIds, index_cache)
         if index == None:
             return jsonify({
             'type': 'text_query_uri_list',
@@ -46,7 +46,7 @@ def txt_query_search_route(app, model, index_cache):
                 'image_uris': image_uri_list
                 })
     
-def img_query_search_route(app, model, index_cache, preprocess):
+def img_query_search_route(app, model, index_cache, userIds, preprocess):
     @app.route('/img_query', methods=['POST'])
     def img_query_return_result():
         # print("GEt here", request.form['file'])
@@ -69,7 +69,7 @@ def img_query_search_route(app, model, index_cache, preprocess):
             # plt.axis('off')
             # plt.show()
         
-            index = load_index(user_id, index_cache)
+            index = load_index(user_id, userIds, index_cache)
             if index == None:
                 return jsonify({
                 'type': 'image_query_uri_list',
