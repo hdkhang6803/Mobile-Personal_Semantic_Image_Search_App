@@ -36,6 +36,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements HttpTextTask.TextQueryTaskListener{
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 122;
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 124;
+    private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 125;
     private HttpImageTask httpImageTask = new HttpImageTask(this);
     private HttpTextTask httpTextTask = new HttpTextTask(this, this);
     private EditText editText;
@@ -60,15 +61,22 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
             // Permission is not granted, request it
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
         }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted, request it
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
+        }
+        //Check write external storage permission and request if not granted
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted, request it
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
+        }
+
         mAuth = FirebaseAuth.getInstance();
 
 //        Log.e("USER", mAuth.getCurrentUser().getUid());
 
         TextInputLayout textInputLayout = findViewById(R.id.textInputLayout);
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            // Permission is not granted, request it
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
-        }
+
 
         editText = findViewById(R.id.editText);
         imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -163,21 +171,10 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
 
         // đoạn này dùng để test
         List<String> imageUriListTest = new ArrayList<>();
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705754144977.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705754144977.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+        imageUriListTest.add("/storage/emulated/0/DCIM/Screenshots/Screenshot_20240122_115710_Zalo.jpg");
+        imageUriListTest.add("/storage/emulated/0/DCIM/Screenshots/Screenshot_20240122_115555_Zalo.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
+
         for (String uri : imageUriListTest){
             Log.d("uri list test", uri);
         }
