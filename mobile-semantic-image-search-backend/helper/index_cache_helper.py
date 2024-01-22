@@ -12,7 +12,15 @@ MAX_CACHE_SIZE = 5
 #     }
 # }
 
-def load_index(userId, index_cache):
+def load_index(userId, userIds, index_cache):
+    # add new userId to userIds.csv if not exist
+    if userId not in userIds:
+        df = pd.read_csv(os.path.join('data', USERID_FILE_NAME))
+        df.loc[len(df)] = {userId}
+        df.to_csv(os.path.join('data', USERID_FILE_NAME), index=False)
+        userIds.append(userId)
+
+    # load index from file
     if userId in index_cache.keys():
         index_cache[userId]['frequency'] += 1
         return index_cache[userId]['index']
