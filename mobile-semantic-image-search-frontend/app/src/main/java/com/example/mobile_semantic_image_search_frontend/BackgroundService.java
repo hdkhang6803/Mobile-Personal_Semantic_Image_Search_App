@@ -152,11 +152,11 @@ public class BackgroundService extends Service {
 
             String userId = mAuth.getCurrentUser().getUid();
 
+            multipartBuilder.addFormDataPart("userId", userId, RequestBody.create(MediaType.parse("text/plain"), userId));
             for (File imageFile : imageFiles) {
                 Log.d(TAG, " one image " + imageFile.getPath());
                 RequestBody requestBody = RequestBody.create(MEDIA_TYPE_JPG, imageFile);
                 multipartBuilder.addFormDataPart("files[]", imageFile.getPath(), requestBody);
-                multipartBuilder.addFormDataPart("userId", userId, RequestBody.create(MediaType.parse("text/plain"), userId));
             }
 
             RequestBody finalRequestBody = multipartBuilder.build();

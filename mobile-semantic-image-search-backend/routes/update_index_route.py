@@ -50,7 +50,10 @@ def create_update_index_routes(app, model, index_cache, userIds, preprocess):
     @app.route('/update_index', methods=['POST'])
     def update_index():
         orig_image_paths, cache_image_paths = get_image_path_from_request(request)
-        userIds = request.files.getlist('userId')
+        # userIds = request.files.getlist('userId')
+        userId = request.args.get('userId')
+
+        print("userId: ", userId)
 
         if len(orig_image_paths) == 0:
             return jsonify({'error': 'No selected file'})
@@ -58,7 +61,7 @@ def create_update_index_routes(app, model, index_cache, userIds, preprocess):
         # embedding = embedding_helper.calculate_img_embeddings(cache_image_path)
         # Create PIL Image from file path
 
-        for orig_image_path, cache_image_path, userId in zip(orig_image_paths, cache_image_paths, userIds):
+        for orig_image_path, cache_image_path in zip(orig_image_paths, cache_image_paths):
             img_query = Image.open(cache_image_path)
             img_embedding = embedding_helper.calculate_img_embeddings(model=model, preprocess=preprocess, raw_image=img_query, device='cpu')
             
