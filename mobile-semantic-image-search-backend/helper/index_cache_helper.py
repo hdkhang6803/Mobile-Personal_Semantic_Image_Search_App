@@ -20,6 +20,8 @@ def load_index(userId, userIds, index_cache):
         df.to_csv(os.path.join('data', USERID_FILE_NAME), index=False)
         userIds.append(userId)
 
+
+
     # load index from file
     if userId in index_cache.keys():
         index_cache[userId]['frequency'] += 1
@@ -29,6 +31,10 @@ def load_index(userId, userIds, index_cache):
             # remove the least frequently use       
             min_freq = min(index_cache, key=index_cache.get)
             del index_cache[min_freq]
+        
+        if not os.path.exists(os.path.join('data', userId, INDEX_FILE_NAME)):
+            return None
+        
         index = faiss.read_index(os.path.join('data', userId, INDEX_FILE_NAME))
         index_cache[userId] = {
             'index': index,
