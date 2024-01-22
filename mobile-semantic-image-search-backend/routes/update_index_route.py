@@ -8,7 +8,9 @@ import os
 import faiss
 from PIL import Image
 
-from ... import load_index
+import sys
+sys.path.append('../helper')
+from index_cache_helper import load_index
 
 
 
