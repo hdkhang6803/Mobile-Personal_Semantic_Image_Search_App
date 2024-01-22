@@ -21,8 +21,10 @@ index_cache = {}
 # Load the list of user ID
 userIDs_path = os.path.join('data', USERID_FILE_NAME)
 if not os.path.exists(userIDs_path):
-    os.makedirs(userIDs_path)
+    df = pd.DataFrame(columns=['userId'])
+    df.to_csv(userIDs_path, index=False)
 userIds = pd.read_csv(userIDs_path).to_numpy().flatten().tolist()
+print(userIds)
 
 
 

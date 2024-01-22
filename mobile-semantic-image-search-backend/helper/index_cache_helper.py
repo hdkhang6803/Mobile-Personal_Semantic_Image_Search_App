@@ -16,7 +16,7 @@ def load_index(userId, userIds, index_cache):
     # add new userId to userIds.csv if not exist
     if userId not in userIds:
         df = pd.read_csv(os.path.join('data', USERID_FILE_NAME))
-        df.loc[len(df)] = {userId}
+        df.loc[len(df)] = {'userId': userId}
         df.to_csv(os.path.join('data', USERID_FILE_NAME), index=False)
         userIds.append(userId)
 
