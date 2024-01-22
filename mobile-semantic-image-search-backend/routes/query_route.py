@@ -8,7 +8,8 @@ import pandas as pd
 from io import BytesIO
 import base64
 import matplotlib.pyplot as plt
-from ..data.index_cache_helper import load_index
+
+from ... import load_index
 
 
 def txt_query_search_route(app, model, index_cache, userIds):
