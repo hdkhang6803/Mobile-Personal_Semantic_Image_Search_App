@@ -7,10 +7,7 @@ from helper.csv_helper import add_to_csv
 import os
 import faiss
 from PIL import Image
-
-import sys
-sys.path.append('../helper')
-from index_cache_helper import load_index
+from helper.index_cache_helper import load_index
 
 
 
