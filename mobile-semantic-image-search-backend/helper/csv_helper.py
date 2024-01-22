@@ -1,7 +1,7 @@
 from globals import CSV_FILE_NAME
 import os
 
-def add_to_csv(userId, orig_image_path):
+def add_to_csv(userId, userIds, orig_image_path):
     """
     Adds the image path to the csv file.
 
@@ -15,6 +15,11 @@ def add_to_csv(userId, orig_image_path):
         None
 
     """
+
+    userIdPath = os.path.join('data', userId)
+    if (not os.path.exists(userIdPath)):
+        os.makedirs(userIdPath)
+        
     csv_file_path = os.path.join('data', userId, CSV_FILE_NAME)
     if not os.path.exists(csv_file_path):
         with open(csv_file_path, 'w') as f:

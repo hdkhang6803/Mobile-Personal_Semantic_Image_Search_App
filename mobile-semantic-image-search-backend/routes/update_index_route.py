@@ -50,12 +50,8 @@ def create_update_index_routes(app, model, index_cache, userIds, preprocess):
     @app.route('/update_index', methods=['POST'])
     def update_index():
         orig_image_paths, cache_image_paths = get_image_path_from_request(request)
-        userIds = request.files.getlist('userId')
-        userId = userIds[0].filename
-        print(request.files)
-        print(request.form)
-        print(request.args)
-        # userId = request.form.get('userId')
+        userIds_temp = request.files.getlist('userId')
+        userId = userIds_temp[0].filename
 
         print("userId: ", userId)
 
@@ -73,8 +69,8 @@ def create_update_index_routes(app, model, index_cache, userIds, preprocess):
             os.remove(cache_image_path)
 
             index = load_index(userId, userIds, index_cache)
-            add_to_csv(userId, orig_image_path)
-            add_to_faiss_index(userId, index, img_embedding)
+            add_to_csv(userId, userIds, orig_image_path)
+            add_to_faiss_index(userId, userIds, index, img_embedding)
 
             print(orig_image_path, " added to index and csv.")
         
