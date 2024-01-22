@@ -48,7 +48,12 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                     @Override
                     public void onError(Exception e) {
                         Log.e("load image error", "Error loading image: " + e.getMessage());
-                        holder.imageView.setVisibility(View.GONE);
+                        // Remove the ImageView from the RecyclerView and notify the adapter
+                        int adapterPosition = holder.getAdapterPosition();
+                        if (adapterPosition != RecyclerView.NO_POSITION) {
+                            imageUriList.remove(adapterPosition);
+                            notifyItemRemoved(adapterPosition);
+                        }
                     }
                 });
 
