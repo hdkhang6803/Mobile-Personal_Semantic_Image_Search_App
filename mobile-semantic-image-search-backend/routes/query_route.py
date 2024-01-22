@@ -28,6 +28,7 @@ def txt_query_search_route(app, model, index_cache, userIds):
         
         index = load_index(user_id, userIds, index_cache)
         if index == None:
+            print("NONE INDEX")
             return jsonify({
             'type': 'text_query_uri_list',
             'status': 'Text query uploaded successfully but no index found', 

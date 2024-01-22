@@ -65,9 +65,9 @@ def create_update_index_routes(app, model, index_cache, userIds, preprocess):
             # Delete the file at cache_image_path
             os.remove(cache_image_path)
 
-            index = load_index(user_id, userIds, index_cache)
+            index = load_index(userId, userIds, index_cache)
             add_to_csv(userId, orig_image_path)
-            add_to_faiss_index(userId, load_index(userId, index), img_embedding)
+            add_to_faiss_index(userId, index, img_embedding)
 
             print(orig_image_path, " added to index and csv.")
         
