@@ -6,12 +6,18 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.widget.Toast;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -253,86 +259,39 @@ public class BackgroundService extends Service {
 
                     Log.d(TAG, " id: " + id + " name: " + name + " duration: " + duration + " path: " + filePath);
 
+                    // Compress the image
+//                    Bitmap originalBitmap = BitmapFactory.decodeFile(data);
+//                    Bitmap compressedBitmap = compressBitmap(originalBitmap);
+
+                    // Save the compressed bitmap to a new file
+//                    File compressedImageFile = saveBitmapToFile(compressedBitmap, name);
+
                     imageFiles.add(new File(data));
+//                    imageFiles.add(compressedImageFile);
                 }
                 cursor.close();
             }
-
-
-            // new
-
-//            ContentResolver contentResolver = context.getContentResolver();
-//            Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-//
-//            String selection = MediaStore.Images.Media.MIME_TYPE + " LIKE 'image/%'";
-//            String[] projection = {
-//                    MediaStore.Images.Media._ID,
-//                    MediaStore.Images.Media.DATA,
-//                    MediaStore.Images.Media.DISPLAY_NAME,
-//                    MediaStore.Images.Media.DATE_TAKEN,
-//                    MediaStore.Images.Media.SIZE,
-//                    MediaStore.Images.Media.WIDTH,
-//                    MediaStore.Images.Media.HEIGHT
-//            };
-//            String sortOrder = MediaStore.Images.Media.DATE_TAKEN + " DESC";
-//
-//            Cursor cursor = null;
-//            try {
-//                cursor = contentResolver.query(queryUri, projection, selection, null, sortOrder);
-//
-//                if (cursor != null && cursor.moveToFirst()) {
-//                    do {
-//                        ImageObject imageObject = getImageObject(cursor, projection);
-//                        imageList.add(imageObject);
-//                        // imageUrls.add(imageObject.photoUri); // assuming imageUrls is declared somewhere
-//                        // Log.d("Image No. " + imageList.size(), imageObject.id + " " + imageObject.photoUri);
-//                        if (imageList.size() == 100) break;
-//                    } while (cursor.moveToNext());
-//                }
-//            } finally {
-//                // Close the Cursor to release system resources
-//                if (cursor != null) {
-//                    cursor.close();
-//                }
-//            }
 
             return imageFiles;
         }
     }
 
-//    public ImageObject getImageObject(Cursor cursor, String[] projection) {
-//        long id = cursor.getLong(cursor.getColumnIndex(projection[0]));
-//        String photoUri = cursor.getString(cursor.getColumnIndex(projection[1]));
-//        String displayName = cursor.getString(cursor.getColumnIndex(projection[2]));
-//        String directory = getDirectoryFromPhotoUri(photoUri);
-//        long dateTakenMillis = cursor.getLong(cursor.getColumnIndex(projection[3]));
-//        long size = cursor.getLong(cursor.getColumnIndex(projection[4]));
-//        int width = cursor.getInt(cursor.getColumnIndex(projection[5]));
-//        int height = cursor.getInt(cursor.getColumnIndex(projection[6]));
-//        // Bitmap bitmap = getBitmap(photoUri); // assuming you have a method to get the bitmap
-//        Bitmap bitmap = null; // replace this with the actual method call
-//
-//        return new ImageObject(id, photoUri, displayName, directory, dateTakenMillis, size, width, height, bitmap);
-//    }
-//
-//    public String getDirectoryFromPhotoUri(String photoUri, ContentResolver contentResolver) {
-//        String[] projection = {MediaStore.Images.Media.DATA};
-//        Cursor cursor = contentResolver.query(Uri.parse(photoUri), projection, null, null, null);
-//
-//        if (cursor != null) {
-//            try {
-//                if (cursor.moveToFirst()) {
-//                    int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-//                    return cursor.getString(columnIndex);
-//                }
-//            } finally {
-//                cursor.close();
-//            }
-//        }
-//
-//        return null;
-//    }
+    private Bitmap compressBitmap(Bitmap originalBitmap) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        originalBitmap.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream);
+        return BitmapFactory.decodeStream(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
+    }
 
-    // Assuming you have a method to get the bitmap
-    // private Bitmap getBitmap(String photoUri) { }
+    private File saveBitmapToFile(Bitmap bitmap, String fileName) {
+        File file = new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
+        try {
+            FileOutputStream outputStream = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            outputStream.flush();
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return file;
+    }
 }
