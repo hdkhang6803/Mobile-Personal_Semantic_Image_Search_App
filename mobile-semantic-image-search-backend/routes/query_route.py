@@ -100,7 +100,7 @@ def get_matched_image_paths(index, embedding, num_results):
 
 def get_image_paths_from_csv(indices_similarities):
     # Read the csv file
-    df = pd.read_csv(CSV_FILE_NAME, header=True, names=['image_path'])
+    df = pd.read_csv(CSV_FILE_NAME)
 
     # Get the image paths for the top n images
     matched_image_paths = []
