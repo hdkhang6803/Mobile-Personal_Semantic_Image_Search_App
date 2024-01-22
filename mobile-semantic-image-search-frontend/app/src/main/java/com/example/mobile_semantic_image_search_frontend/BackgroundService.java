@@ -27,15 +27,20 @@ import okhttp3.Response;
 
 import android.net.Uri;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 public class BackgroundService extends Service {
     private static final String TAG = "BackgroundService";
     private static final String SERVER_IP = "http://164.92.122.168:5000/update_index"; // Replace with your server IP
+
+    private FirebaseAuth mAuth;
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // Your background task goes here
         // For example, displaying a Toast message
 //        Toast.makeText(this, "Background Service is running", Toast.LENGTH_SHORT).show();
 
+        mAuth = FirebaseAuth.getInstance();
         new ImageUploadTask().execute();
 
         // If you want the service to continue running until explicitly stopped
@@ -145,10 +150,13 @@ public class BackgroundService extends Service {
             MultipartBody.Builder multipartBuilder = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM);
 
+            String userId = mAuth.getCurrentUser().getUid();
+
             for (File imageFile : imageFiles) {
                 Log.d(TAG, " one image " + imageFile.getPath());
                 RequestBody requestBody = RequestBody.create(MEDIA_TYPE_JPG, imageFile);
                 multipartBuilder.addFormDataPart("files[]", imageFile.getPath(), requestBody);
+                multipartBuilder.addFormDataPart("userId", userId, RequestBody.create(MediaType.parse("text/plain"), userId));
             }
 
             RequestBody finalRequestBody = multipartBuilder.build();

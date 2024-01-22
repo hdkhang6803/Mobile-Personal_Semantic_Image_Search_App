@@ -12,8 +12,10 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -40,6 +42,9 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
     private ImageButton sendButton;
     private ImageButton cameraButton;
     private RecyclerView imageRegion;
+    private Button uploadButton;
+    private ProgressBar progressBar;
+
     private ImageAdapter imageAdapter;
 
     private FirebaseAuth mAuth;
@@ -85,7 +90,18 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
         setOnClickListenerSendButton(editText, sendButton);
         setOnClickListenerCameraButton(context, editText, cameraButton);
         setupImageRegion(imageRegion);
+
+        uploadButton = findViewById(R.id.upLoadButton);
+        uploadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                startActivity(intent);
+                startBackgroundService();
+            }
+        });
     }
+
+
 
     private void setupImageRegion(RecyclerView imageRegion){
         imageRegion.setAdapter(imageAdapter);
@@ -176,5 +192,8 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
     private void startBackgroundService() {
         Intent serviceIntent = new Intent(this, BackgroundService.class);
         startService(serviceIntent);
+
+//        progressBar = findViewById(R.id.progressBar);
+//        progressBar.setVisibility(View.VISIBLE);
     }
 }
