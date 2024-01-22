@@ -8,9 +8,10 @@ import pandas as pd
 from io import BytesIO
 import base64
 import matplotlib.pyplot as plt
+from data.index_cache_helper import load_index
 
 
-def txt_query_search_route(app, model, index):
+def txt_query_search_route(app, model, index_cache):
     @app.route('/txt_query', methods=['POST'])
     def txt_query_return_result():
         # print("Content-Type:", request.content_type)
@@ -25,6 +26,7 @@ def txt_query_search_route(app, model, index):
         print("USERID: ", user_id)
         print("TEXT: ", text_query)
         
+        index = load_index(user_id, index_cache)
         txt_embedding = calculate_txt_embeddings(model=model, text_query=text_query)
         image_uri_list = get_matched_image_paths(index, txt_embedding, num_results=100)
 
@@ -36,7 +38,7 @@ def txt_query_search_route(app, model, index):
             'image_uris': image_uri_list
             })
     
-def img_query_search_route(app, model, index, preprocess):
+def img_query_search_route(app, model, index_cache, preprocess):
     @app.route('/img_query', methods=['POST'])
     def img_query_return_result():
         # print("GEt here", request.form['file'])
@@ -59,6 +61,7 @@ def img_query_search_route(app, model, index, preprocess):
             # plt.axis('off')
             # plt.show()
         
+            index = load_index(user_id, index_cache)
             img_embedding = calculate_img_embeddings(model=model, preprocess=preprocess, raw_image=img_query, device='cpu')
             image_uri_list = get_matched_image_paths(index, img_embedding, num_results=100)
         

@@ -1,41 +1,13 @@
 import os
 from flask import Flask, request, jsonify
 import helper.embedding_helper as embedding_helper
-from globals import CACHE_FOLDER_NAME, CSV_FILE_NAME
-import helper.faiss_helper as faiss_helper
-from globals import CACHE_FOLDER_NAME, CSV_FILE_NAME
+from globals import CACHE_FOLDER_NAME
+from helper.faiss_helper import add_to_faiss_index
+from helper.csv_helper import add_to_csv   
 import os
 import faiss
 from PIL import Image
-def add_to_csv(orig_image_path):
-    """
-    Adds the image path to the csv file.
-
-    Args:
-        orig_image_path (str): The original image path.
-
-    Returns:
-        None
-
-    Raises:
-        None
-
-    """
-    if not os.path.exists(CSV_FILE_NAME):
-        with open(CSV_FILE_NAME, 'w') as f:
-            f.write("image_path\n")
-
-    with open(CSV_FILE_NAME, 'a') as f:
-        f.write(orig_image_path + '\n')
-
-
-
-def add_to_faiss_index(index : faiss.IndexFlatIP, embedding):
-    if (index == None):
-        # create
-        index = faiss.IndexFlatIP(embedding.shape[1])
-    index.add(embedding)
-    faiss.write_index(index, "clip.index")
+from data.index_cache_helper import load_index
 
 
 
@@ -73,11 +45,12 @@ def get_image_path_from_request(request):
 
 
 
-def create_update_index_routes(app, model, index, preprocess):
+def create_update_index_routes(app, model, index_cache, preprocess):
     
     @app.route('/update_index', methods=['POST'])
     def update_index():
         orig_image_paths, cache_image_paths = get_image_path_from_request(request)
+        userId = request.form['userId']
 
         if len(orig_image_paths) == 0:
             return jsonify({'error': 'No selected file'})
@@ -92,8 +65,9 @@ def create_update_index_routes(app, model, index, preprocess):
             # Delete the file at cache_image_path
             os.remove(cache_image_path)
 
-            add_to_csv(orig_image_path)
-            faiss_helper.add_to_faiss_index(index, img_embedding)
+            index = load_index(userId, index_cache)
+            add_to_csv(userId, orig_image_path)
+            add_to_faiss_index(userId, load_index(userId, index), img_embedding)
 
             print(orig_image_path, " added to index and csv.")
         
