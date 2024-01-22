@@ -1,7 +1,7 @@
 import os
 import faiss
 
-def load_index(index_file_name):
+def load_index(userId, index_file_name):
     """
     Loads the faiss index from the file.
 
@@ -22,9 +22,9 @@ def load_index(index_file_name):
     index = faiss.read_index(index_file_name)
     return index
 
-def add_to_faiss_index(index : faiss.IndexFlatIP, embedding):
+def add_to_faiss_index(userId, index : faiss.IndexFlatIP, embedding):
     if (index == None):
         # create
         index = faiss.IndexFlatIP(embedding.shape[1])
     index.add(embedding)
-    faiss.write_index(index, "clip.index")
+    faiss.write_index(index, os.path.join('data', userId, INDEX_FILE_NAME))
