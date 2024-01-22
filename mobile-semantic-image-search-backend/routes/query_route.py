@@ -27,16 +27,24 @@ def txt_query_search_route(app, model, index_cache):
         print("TEXT: ", text_query)
         
         index = load_index(user_id, index_cache)
-        txt_embedding = calculate_txt_embeddings(model=model, text_query=text_query)
-        image_uri_list = get_matched_image_paths(index, txt_embedding, num_results=100)
-
-        return jsonify({
+        if index == None:
+            return jsonify({
             'type': 'text_query_uri_list',
-            'status': 'Text query uploaded successfully', 
+            'status': 'Text query uploaded successfully but no index found', 
             'text_query': text_query,
             'userId': user_id,
-            'image_uris': image_uri_list
+            'image_uris': None
             })
+        else:
+            txt_embedding = calculate_txt_embeddings(model=model, text_query=text_query)
+            image_uri_list = get_matched_image_paths(index, txt_embedding, num_results=100)
+            return jsonify({
+                'type': 'text_query_uri_list',
+                'status': 'Text query uploaded successfully', 
+                'text_query': text_query,
+                'userId': user_id,
+                'image_uris': image_uri_list
+                })
     
 def img_query_search_route(app, model, index_cache, preprocess):
     @app.route('/img_query', methods=['POST'])
@@ -62,14 +70,20 @@ def img_query_search_route(app, model, index_cache, preprocess):
             # plt.show()
         
             index = load_index(user_id, index_cache)
-            img_embedding = calculate_img_embeddings(model=model, preprocess=preprocess, raw_image=img_query, device='cpu')
-            image_uri_list = get_matched_image_paths(index, img_embedding, num_results=100)
-        
-            return jsonify({
+            if index == None:
+                return jsonify({
                 'type': 'image_query_uri_list',
-                'status': 'Image query uploaded successfully', 
-                'image_uris': image_uri_list
+                'status': 'Image query uploaded successfully but no index found', 
+                'image_uris': None
                 })
+            else:
+                img_embedding = calculate_img_embeddings(model=model, preprocess=preprocess, raw_image=img_query, device='cpu')
+                image_uri_list = get_matched_image_paths(index, img_embedding, num_results=100)        
+                return jsonify({
+                    'type': 'image_query_uri_list',
+                    'status': 'Image query uploaded successfully', 
+                    'image_uris': image_uri_list
+                    })
     
         except Exception as e:
             return jsonify({'error': str(e)})

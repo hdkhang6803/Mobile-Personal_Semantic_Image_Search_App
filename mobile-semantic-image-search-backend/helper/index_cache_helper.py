@@ -14,7 +14,8 @@ MAX_CACHE_SIZE = 5
 
 def load_index(userId, index_cache):
     if userId in index_cache.keys():
-        return index_cache[userId]
+        index_cache[userId]['frequency'] += 1
+        return index_cache[userId]['index']
     else:
         if len(index_cache.keys()) > MAX_CACHE_SIZE:
             # remove the least frequently use       
@@ -23,6 +24,6 @@ def load_index(userId, index_cache):
         index = faiss.read_index(os.path.join('data', userId, INDEX_FILE_NAME))
         index_cache[userId] = {
             'index': index,
-            'frequency': 0
+            'frequency': 1
         }
-        return index_cache[userId]
+        return index_cache[userId]['index']
