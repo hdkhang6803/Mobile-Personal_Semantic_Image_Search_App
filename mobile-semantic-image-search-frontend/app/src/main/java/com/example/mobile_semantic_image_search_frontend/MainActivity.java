@@ -22,6 +22,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mobile_semantic_image_search_frontend.Object.ImageModel;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -44,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
 
     private FirebaseAuth mAuth;
     static InputMethodManager imm;
+
+    private boolean isSelectionEnabled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +84,21 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
         cameraButton = findViewById(R.id.cameraButton);
         imageRegion = findViewById(R.id.imageRegion);
         imageAdapter = new ImageAdapter(this, new ArrayList<>());
+
+        imageAdapter.setOnImageClickListener(new ImageAdapter.OnImageClickListener() {
+            @Override
+            public void onImageClick(int position) {
+                if (isSelectionEnabled) {
+                    ImageModel imageModel = imageAdapter.imageList.get(position);
+                    imageModel.setSelected(!imageModel.isSelected());
+                    imageAdapter.notifyItemChanged(position);
+                } else {
+                    // Handle the regular click event
+                    String imageUri = imageAdapter.imageList.get(position).getImageUri();
+                    imageAdapter.showImageOptionsPopup(imageUri);
+                }
+            }
+        });
 
         setOnClickListenerSendButton(editText, sendButton);
         setOnClickListenerCameraButton(context, editText, cameraButton);

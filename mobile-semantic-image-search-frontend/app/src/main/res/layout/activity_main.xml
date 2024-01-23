@@ -56,6 +56,52 @@
 
 
     </LinearLayout>
+<<<<<<< Updated upstream
+=======
+    <RelativeLayout
+        android:id="@+id/multiSelectionMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:translationZ="10dp"
+        android:background="@color/white"
+        android:layout_alignParentTop="true"
+        android:visibility="invisible"
+        android:gravity="center_vertical">
+
+        <Button
+            android:id="@+id/clearSelectionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:layout_toLeftOf="@id/multiDeleteButton"
+            android:hint="Clear"/>
+
+
+        <ImageButton
+            android:id="@+id/multiDeleteButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/delete"
+            android:background="@color/white"
+            android:layout_toLeftOf="@id/multiShareButton"
+            android:text="Send"/>
+
+        <ImageButton
+            android:id="@+id/multiShareButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:src="@drawable/share"
+            android:layout_alignParentEnd="true"
+            android:contentDescription="Camera"/>
+
+
+    </RelativeLayout>
+
+>>>>>>> Stashed changes
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/imageRegion"
         android:layout_width="match_parent"
