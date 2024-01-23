@@ -224,7 +224,7 @@ public class MainActivity extends AppCompatActivity
 
 
                         Log.d("Share images", "Image URI from file provider: " + uri.toString());
-                        uris.add(Uri.parse(imageUri));
+                        uris.add(uri);
                         Log.e("Share images", "Image URI: " + imageUri);
                     }
 
