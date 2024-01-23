@@ -33,10 +33,11 @@ import java.util.List;
 
 
 
-public class MainActivity extends AppCompatActivity implements HttpTextTask.TextQueryTaskListener{
+public class MainActivity extends AppCompatActivity
+        implements HttpTextTask.TextQueryTaskListener, HttpImageTask.ImageQueryTaskListener{
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 122;
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 124;
-    private HttpImageTask httpImageTask = new HttpImageTask(this);
+    private HttpImageTask httpImageTask = new HttpImageTask(this, this);
     private HttpTextTask httpTextTask = new HttpTextTask(this, this);
     private EditText editText;
     private ImageButton sendButton;
@@ -127,12 +128,12 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
                 editText.clearFocus();
                 imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
 
-                Toast.makeText(getApplicationContext(), "The query is sent, please wait", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "The query is sent, please wait.", Toast.LENGTH_SHORT).show();
                 // Handle text query submission here
                 new Handler(getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        httpTextTask.sendTextData(mAuth.getCurrentUser().getUid(),textQuery);
+                        httpTextTask.sendTextData(mAuth.getCurrentUser().getUid(), textQuery);
                     }
                 });
             }
@@ -147,11 +148,11 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
 
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
             if (photoFile != null) {
-                Toast.makeText(getApplicationContext(), "The image query is sent, please wait", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "The image query is sent, please wait.", Toast.LENGTH_SHORT).show();
                 new Handler(getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        httpImageTask.uploadImage(mAuth.getCurrentUser().getUid(),photoFile);
+                        httpImageTask.uploadImage(mAuth.getCurrentUser().getUid(), photoFile);
                     }
                 });
             }
@@ -161,32 +162,53 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
     @Override
     public void onTextQueryResponseReceived(List<String> imageUriList) {
 
-        // đoạn này dùng để test
-        List<String> imageUriListTest = new ArrayList<>();
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705754144977.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705754144977.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        for (String uri : imageUriListTest){
-            Log.d("uri list test", uri);
-        }
-
-//        for (String uri : imageUriList){
-//            Log.d("uri list", uri);
+//        // đoạn này dùng để test
+//        List<String> imageUriListTest = new ArrayList<>();
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705754144977.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705754144977.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+//        for (String uri : imageUriListTest){
+//            Log.d("uri list test", uri);
 //        }
-        imageAdapter.setImageUriList(imageUriListTest);
-        imageAdapter.notifyDataSetChanged();
+
+        if (imageUriList == null){
+            imageAdapter.setImageUriList(new ArrayList<>());
+            imageAdapter.notifyDataSetChanged();
+            Toast.makeText(this, "No images found.", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            for (String uri : imageUriList)
+                Log.d("uri list", uri);
+            imageAdapter.setImageUriList(imageUriList);
+            imageAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onImageQueryResponseReceived(List<String> imageUriList) {
+        if (imageUriList == null){
+            imageAdapter.setImageUriList(new ArrayList<>());
+            imageAdapter.notifyDataSetChanged();
+            Toast.makeText(this, "No images found.", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            for (String uri : imageUriList)
+                Log.d("uri list", uri);
+            imageAdapter.setImageUriList(imageUriList);
+            imageAdapter.notifyDataSetChanged();
+        }
     }
 
     private void startBackgroundService() {
