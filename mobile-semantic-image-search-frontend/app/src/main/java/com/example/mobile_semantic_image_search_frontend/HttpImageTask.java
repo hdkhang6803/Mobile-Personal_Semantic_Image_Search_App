@@ -64,38 +64,9 @@ public class HttpImageTask {
                     if (response.isSuccessful()) {
                         ServerResponse serverResponse = response.body();
                         if (serverResponse != null) {
-
-                            // Handle response
-                            Log.d("Retrofit", "Response Code: " + response.code());
-                            Log.d("Retrofit", "Response Body: " + response.body());
-
                             String status = serverResponse.getStatus();
-                            String error = serverResponse.getError();
+                            Log.e("HTTP Image Query Response", "Server Response: " + status);
                             List<String> imageUriList = serverResponse.getImageUris();
-
-                            if (status == null){
-                                Log.e("status", "null");
-                            }
-                            else Log.e("status", status);
-
-                            if (error == null){
-                                Log.e("error", "null");
-                            }
-                            else Log.e("error", error);
-
-                            if (imageUriList == null){
-                                Log.e("uri list", "null list");
-                                imageUriList = new ArrayList<>();
-                                imageUriList.add(imageFile.getPath());
-                            }
-                            else if (imageUriList.size() == 0){
-                                Log.e("uri list", "empty list");
-                            }
-                            else for (String uri : imageUriList){
-                                Log.e("uri list", uri);
-                                }
-//                            Log.e("HTTP Image Query Response", "Server Response: " + status);
-//                            List<String> imageUriList = serverResponse.getImageUris();
                             notifyImageQueryResponseReceived(imageUriList);
                         }
                     } else {

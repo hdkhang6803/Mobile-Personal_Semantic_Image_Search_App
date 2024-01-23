@@ -13,14 +13,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp"
+        android:padding="8dp"
         android:gravity="center_vertical">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout"
-            android:layout_width="wrap_content"
-            android:layout_weight="9"
             android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="7"
             android:hint="Enter text here">
 
             <EditText
@@ -35,26 +35,47 @@
            />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:layout_gravity="center">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+                <ImageButton
+                    android:id="@+id/sendButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/baseline_send_24"
+                    android:background="@color/white"
+                    android:contentDescription="Send"/>
 
-        <ImageButton
-            android:id="@+id/sendButton"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="16dp"
-            android:layout_marginStart="16dp"
-            android:src="@drawable/send"
-            android:background="@color/white"
-            android:text="Send"/>
-
-        <ImageButton
-            android:id="@+id/cameraButton"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@color/white"
-            android:src="@drawable/add_photo"
-            android:contentDescription="Camera"/>
-
-
+                <ImageButton
+                    android:id="@+id/cameraButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:layout_gravity="center"
+                    android:background="@color/white"
+                    android:src="@drawable/baseline_add_a_photo_24"
+                    android:contentDescription="Camera"/>
+            </LinearLayout>
+            <ProgressBar
+                android:id="@+id/progressBarQuery"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_gravity="center"
+                android:tint="@color/navy"
+                android:background="@color/white"
+                android:visibility="gone"/>
+        </FrameLayout>
     </LinearLayout>
 
     <RelativeLayout
