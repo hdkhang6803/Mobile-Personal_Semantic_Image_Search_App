@@ -4,8 +4,10 @@ import static com.example.mobile_semantic_image_search_frontend.CameraUtil.REQUE
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -44,11 +47,29 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
     private RecyclerView imageRegion;
     private Button uploadButton;
     private ProgressBar progressBar;
+    private RelativeLayout progressRelativeLayout;
 
     private ImageAdapter imageAdapter;
 
     private FirebaseAuth mAuth;
     static InputMethodManager imm;
+
+    private BroadcastReceiver progressReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int progress = intent.getIntExtra("progress", 0);
+            progressBar.setProgress(progress);
+        }
+    };
+
+    private BroadcastReceiver serviceDoneReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Make the ProgressBar invisible
+            progressBar.setVisibility(View.INVISIBLE);
+            progressRelativeLayout.setVisibility(View.INVISIBLE);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +120,18 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
                 startBackgroundService();
             }
         });
+
+        // Initialize your ProgressBar
+        progressBar = findViewById(R.id.progressBar);
+        progressRelativeLayout = findViewById(R.id.progressBarRelativeLayout);
+
+        // Register the receiver
+        IntentFilter filter = new IntentFilter("your.package.name.ACTION_UPDATE_PROGRESS");
+        registerReceiver(progressReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+
+        // Register the receiver
+        IntentFilter filterService = new IntentFilter("your.package.name.ACTION_SERVICE_DONE");
+        registerReceiver(serviceDoneReceiver, filterService, Context.RECEIVER_NOT_EXPORTED);
     }
 
 
@@ -161,39 +194,51 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
     @Override
     public void onTextQueryResponseReceived(List<String> imageUriList) {
 
-        // đoạn này dùng để test
-        List<String> imageUriListTest = new ArrayList<>();
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705754144977.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705754144977.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
-        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
-        for (String uri : imageUriListTest){
-            Log.d("uri list test", uri);
-        }
-
-//        for (String uri : imageUriList){
-//            Log.d("uri list", uri);
+//        // đoạn này dùng để test
+//        List<String> imageUriListTest = new ArrayList<>();
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705754144977.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705754144977.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_170576001933.jpg");
+//        imageUriListTest.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1705760019332.jpg");
+//        for (String uri : imageUriListTest){
+//            Log.d("uri list test", uri);
 //        }
-        imageAdapter.setImageUriList(imageUriListTest);
+
+        for (String uri : imageUriList){
+            Log.d("uri list", uri);
+        }
+        imageAdapter.setImageUriList(imageUriList);
         imageAdapter.notifyDataSetChanged();
+
+
+
     }
 
     private void startBackgroundService() {
         Intent serviceIntent = new Intent(this, BackgroundService.class);
+        progressBar.setVisibility(View.VISIBLE);
+        progressRelativeLayout.setVisibility(View.VISIBLE);
         startService(serviceIntent);
 
 //        progressBar = findViewById(R.id.progressBar);
-//        progressBar.setVisibility(View.VISIBLE);
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(progressReceiver);
+        unregisterReceiver(serviceDoneReceiver);
     }
 }
