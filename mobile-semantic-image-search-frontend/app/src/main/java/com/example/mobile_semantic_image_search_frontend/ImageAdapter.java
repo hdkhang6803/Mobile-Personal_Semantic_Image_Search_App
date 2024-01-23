@@ -36,7 +36,28 @@ import java.util.List;
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
 
     private Context context;
-    private List<ImageModel> imageList;
+
+    public List<ImageModel> imageList;
+
+    private OnImageClickListener onImageClickListener;
+
+    private static OnImageLongClickListener onImageLongClickListener;
+
+    public interface OnImageClickListener {
+        void onImageClick(int position);
+    }
+
+    public interface OnImageLongClickListener {
+        void onImageLongClick(int position);
+    }
+
+    public void setOnImageClickListener(OnImageClickListener onImageClickListener) {
+        this.onImageClickListener = onImageClickListener;
+    }
+
+    public void setOnImageLongClickListener(OnImageLongClickListener onImageLongClickListener) {
+        this.onImageLongClickListener = onImageLongClickListener;
+    }
 
     public ImageAdapter(Context context, List<String> imageUriList) {
         this.context = context;
@@ -46,6 +67,14 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             imageList.add(new ImageModel(imageUri));
         }
     }
+    public void setImageUriList(List<String> imageUriList){
+        this.imageList = new ArrayList<>(); // imageList
+        for (String imageUri : imageUriList) {
+            imageList.add(new ImageModel(imageUri));
+        }
+        notifyDataSetChanged();
+    }
+
 
     @NonNull
     @Override
@@ -56,37 +85,23 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
-//        String imageUriString = imageUriList.get(position);
+
+        position = holder.getAdapterPosition();
         ImageModel imageModel = imageList.get(position);
         String imageUriString = imageModel.getImageUri();
         File imageFile = new File(imageUriString);
 
+        int finalPosition = position;
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showImageOptionsPopup(imageUriString);
+                if (onImageClickListener != null) {
+                    onImageClickListener.onImageClick(finalPosition);
+                }
             }
         });
 
-        // Set long click listener for item view
-        holder.itemView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                //Wait for one second to determine if this is a long click
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    v.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.e("long click", "long click");
-                            handleItemLongClick(imageModel, position);
-                        }
-                    }, 1000);
-                } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    v.performClick();
-                }
-                return true;
-            }
-        });
+        holder.bind(imageModel);
 
 
         Picasso.get()
@@ -108,24 +123,16 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                         if (adapterPosition != RecyclerView.NO_POSITION) {
                             imageList.remove(adapterPosition);
                             notifyItemRemoved(adapterPosition);
+                            notifyItemRangeChanged(adapterPosition, imageList.size());
                         }
                     }
                 });
 
-        holder.bind(imageModel);
-    }
-
-    private void handleItemLongClick(ImageModel imageModel, int position) {
-        // Handle long item click (e.g., toggle item selection)
-        imageModel.setSelected(true);
-
-        notifyItemChanged(position);
-        notifyDataSetChanged();
 
     }
 
 
-    private void showImageOptionsPopup(String imageUri) {
+    public void showImageOptionsPopup(String imageUri) {
         // Inflate the popup layout
         View popupView = LayoutInflater.from(context).inflate(R.layout.popup_image_options, null);
 
@@ -252,23 +259,26 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.imageView);
+
             checkBox = itemView.findViewById(R.id.selectionCheckBox);
             checkBox.setSelected(false);
-//            checkBox.setVisibility(View.GONE);
+            checkBox.setVisibility(View.GONE);
         }
         public void bind(ImageModel imageModel) {
-            // Update the checkbox visibility based on the model
-            checkBox.setVisibility(imageModel.isSelected() ? View.VISIBLE : View.GONE);
             checkBox.setChecked(imageModel.isSelected());
+            checkBox.setVisibility(imageModel.isShowingCheckbox() ? View.VISIBLE : View.GONE);
+            // Update the checkbox visibility based on the model
+            imageView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    onImageLongClickListener.onImageLongClick(getAdapterPosition());
+                    return false;
+                }
+            });
         }
     }
 
-    public void setImageUriList(List<String> imageUriList){
-        this.imageList = new ArrayList<>(); // imageList
-        for (String imageUri : imageUriList) {
-            imageList.add(new ImageModel(imageUri));
-        }
-    }
+
 
     public List<ImageModel> getSelectedImages() {
         List<ImageModel> selectedImages = new ArrayList<>();
@@ -283,7 +293,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     public void clearSelection() {
         for (ImageModel imageModel : imageList) {
             imageModel.setSelected(false);
+            imageModel.setShowingCheckbox(false);
         }
         notifyDataSetChanged();
+
     }
 }
