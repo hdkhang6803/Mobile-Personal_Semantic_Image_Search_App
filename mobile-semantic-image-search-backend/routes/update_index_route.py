@@ -76,7 +76,7 @@ def create_update_index_routes(app, model, index_cache, csv_path_cache, userIds,
                 add_to_csv(userId, userIds, orig_image_path, csv_cnt)
                 csv_image_paths.add(orig_image_path)
                 # csv_params.append((userId, userIds, orig_image_path))
-                add_to_faiss_index(userId, userIds, index, img_embedding)
+                add_to_faiss_index(userId, userIds, index, img_embedding, index_cnt)
                 # faiss_index_params.append((userId, userIds, index, img_embedding))
 
             print(orig_image_path, " added to index and csv.")
