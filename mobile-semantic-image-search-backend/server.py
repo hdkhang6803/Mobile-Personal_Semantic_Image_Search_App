@@ -17,6 +17,7 @@ if not os.path.exists(CACHE_FOLDER_NAME):
 
 # Init the index cache
 index_cache = {}
+csv_path_cache = {}
 
 # Load the list of user ID
 userIDs_path = os.path.join('data', USERID_FILE_NAME)
@@ -28,7 +29,7 @@ print(userIds)
 
 
 
-create_update_index_routes(app, model, index_cache, userIds, preprocess)
+create_update_index_routes(app, model, index_cache, csv_path_cache, userIds, preprocess)
 txt_query_search_route(app=app, model=model, index_cache=index_cache, userIds=userIds)
 img_query_search_route(app=app, model=model, index_cache=index_cache, userIds=userIds, preprocess=preprocess)
     

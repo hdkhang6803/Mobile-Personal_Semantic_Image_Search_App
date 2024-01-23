@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify
 import helper.embedding_helper as embedding_helper
 from globals import CACHE_FOLDER_NAME
 from helper.faiss_helper import add_to_faiss_index
-from helper.csv_helper import add_to_csv   
+from helper.csv_helper import add_to_csv, load_csv_paths
 import os
 import faiss
 from PIL import Image
@@ -45,7 +45,7 @@ def get_image_path_from_request(request):
 
 
 
-def create_update_index_routes(app, model, index_cache, userIds, preprocess):
+def create_update_index_routes(app, model, index_cache, csv_path_cache, userIds, preprocess):
     
     @app.route('/update_index', methods=['POST'])
     def update_index():
@@ -71,17 +71,20 @@ def create_update_index_routes(app, model, index_cache, userIds, preprocess):
             os.remove(cache_image_path)
 
             index = load_index(userId, userIds, index_cache)
-            # add_to_csv(userId, userIds, orig_image_path)
-            csv_params.append((userId, userIds, orig_image_path))
-            # add_to_faiss_index(userId, userIds, index, img_embedding)
-            faiss_index_params.append((userId, userIds, index, img_embedding))
+            csv_image_paths = load_csv_paths(userId, userIds, csv_path_cache);
+            if (orig_image_path not in csv_image_paths):        
+                add_to_csv(userId, userIds, orig_image_path)
+                csv_image_paths.add(orig_image_path)
+                # csv_params.append((userId, userIds, orig_image_path))
+                add_to_faiss_index(userId, userIds, index, img_embedding)
+                # faiss_index_params.append((userId, userIds, index, img_embedding))
 
             print(orig_image_path, " added to index and csv.")
         
-        for csv_param in csv_params:
-            add_to_csv(*csv_param)
-        for faiss_index_param in faiss_index_params:
-            add_to_faiss_index(*faiss_index_param)
+        # for csv_param in csv_params:
+        #     add_to_csv(*csv_param)
+        # for faiss_index_param in faiss_index_params:
+        #     add_to_faiss_index(*faiss_index_param)
             
         return jsonify({'message': 'File uploaded successfully and created embedding', 'file_paths': orig_image_paths})
     
