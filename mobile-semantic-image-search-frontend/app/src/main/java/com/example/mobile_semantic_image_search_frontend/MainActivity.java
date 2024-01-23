@@ -196,42 +196,48 @@ public class MainActivity extends AppCompatActivity
         multiShareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Share the selected images
-                ArrayList<Uri> uris = new ArrayList<>();
+                try {
+                    // Share the selected images
+                    ArrayList<Uri> uris = new ArrayList<>();
 
-                for (ImageModel imageModel : imageAdapter.getSelectedImages()) {
-                    String imageUri = imageModel.getImageUri();
-                    File imageFile = new File(imageUri);
+                    for (ImageModel imageModel : imageAdapter.getSelectedImages()) {
+                        String imageUri = imageModel.getImageUri();
+                        File imageFile = new File(imageUri);
 
-                    // Use FileProvider to generate a content URI
-                    Uri uri = FileProvider.getUriForFile(
-                            getApplicationContext(),
-                            "com.example.android.fileprovider",
-                            imageFile);
-                    uris.add(uri);
+                        // Use FileProvider to generate a content URI
+                        Uri uri = FileProvider.getUriForFile(
+                                getApplicationContext(),
+                                "com.example.android.fileprovider",
+                                imageFile);
+                        uris.add(uri);
+                    }
+
+                    Intent shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+                    shareIntent.setType("image/*");
+
+                    // Grant read permission to the receiving app
+                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                    // Add the image URIs to the intent
+                    shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+
+                    // Optionally, add a subject for the shared content
+                    shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Shared Images");
+
+                    // Optionally, add text for the shared content
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out these images!");
+
+                    isSelectionEnabled = false;
+                    imageAdapter.clearSelection();
+                    multiSelectionMenu.setVisibility(View.INVISIBLE);
+
+                    // Start the chooser to let the user pick a social media app
+                    startActivity(Intent.createChooser(shareIntent, "Share images to..."));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e("Share images", "Failed to share images");
+                    Toast.makeText(getApplicationContext(), "Failed to share images", Toast.LENGTH_SHORT).show();
                 }
-
-                Intent shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-                shareIntent.setType("image/*");
-
-                // Grant read permission to the receiving app
-                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-                // Add the image URIs to the intent
-                shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
-
-                // Optionally, add a subject for the shared content
-                shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Shared Images");
-
-                // Optionally, add text for the shared content
-                shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out these images!");
-
-                isSelectionEnabled = false;
-                imageAdapter.clearSelection();
-                multiSelectionMenu.setVisibility(View.INVISIBLE);
-
-                // Start the chooser to let the user pick a social media app
-                startActivity(Intent.createChooser(shareIntent, "Share images to..."));
             }
         });
     }

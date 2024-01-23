@@ -208,13 +208,16 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
                         if (rowsDeleted > 0) {
                             Log.e("FileDeletionUtil", "File deleted successfully");
+                            Toast.makeText(context, "File deleted successfully", Toast.LENGTH_SHORT).show();
                             imageList.remove(position);
                             notifyItemRemoved(position);
                         } else {
                             Log.e("FileDeletionUtil", "Failed to delete file");
+                            Toast.makeText(context, "Failed to delete file", Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         Log.e("FileDeletionUtil", "File not found in MediaStore");
+                        Toast.makeText(context, "File not found in MediaStore", Toast.LENGTH_SHORT).show();
                     }
 
                     if (cursor != null) {
@@ -222,6 +225,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                     }
                 } catch (Exception e) {
                     Log.e("FileDeletionUtil", "Failed to delete file: " + e.getMessage());
+                    Toast.makeText(context, "Failed to delete file", Toast.LENGTH_SHORT).show();
                 }
 
                 // Dismiss the dialog
@@ -231,34 +235,39 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
         // Share button click listener
         shareButton.setOnClickListener(view -> {
-            // Create an Intent with ACTION_SEND
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            try {
+                // Create an Intent with ACTION_SEND
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
 
-            // Set the MIME type for the intent (image type)
-            shareIntent.setType("image/*");
+                // Set the MIME type for the intent (image type)
+                shareIntent.setType("image/*");
 
-            // Create a File object from the image URI
-            File imageFile = new File(imageUri);
+                // Create a File object from the image URI
+                File imageFile = new File(imageUri);
 
-            // Check if the image file exists
-            if (imageFile.exists()) {
-                // Create a content URI from the image file
-                Uri contentUri = FileProvider.getUriForFile(context, "com.example.android.fileprovider", imageFile);
+                // Check if the image file exists
+                if (imageFile.exists()) {
+                    // Create a content URI from the image file
+                    Uri contentUri = FileProvider.getUriForFile(context, "com.example.android.fileprovider", imageFile);
 
-                // Set the URI as the EXTRA_STREAM for the intent
-                shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
-                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    // Set the URI as the EXTRA_STREAM for the intent
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-                // Optionally, add a subject for the shared content
-                shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Shared Image");
+                    // Optionally, add a subject for the shared content
+                    shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Shared Image");
 
-                // Optionally, add text for the shared content
-                shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out this image!");
+                    // Optionally, add text for the shared content
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out this image!");
 
-                // Start the activity with the intent
-                context.startActivity(Intent.createChooser(shareIntent, "Share Image"));
-            } else {
-                Toast.makeText(context, "Image not exist in device!", Toast.LENGTH_SHORT).show();
+                    // Start the activity with the intent
+                    context.startActivity(Intent.createChooser(shareIntent, "Share Image"));
+                } else {
+                    Toast.makeText(context, "Image not exist in device!", Toast.LENGTH_SHORT).show();
+                }
+            } catch (Exception e) {
+                Log.e("ShareImageUtil", "Failed to share image: " + e.getMessage());
+                Toast.makeText(context, "Failed to share image", Toast.LENGTH_SHORT).show();
             }
 
             // Dismiss the dialog
