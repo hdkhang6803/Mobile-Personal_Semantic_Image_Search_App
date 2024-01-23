@@ -61,6 +61,8 @@ def create_update_index_routes(app, model, index_cache, userIds, preprocess):
         # embedding = embedding_helper.calculate_img_embeddings(cache_image_path)
         # Create PIL Image from file path
 
+        csv_params = []
+        faiss_index_params = []
         for orig_image_path, cache_image_path in zip(orig_image_paths, cache_image_paths):
             img_query = Image.open(cache_image_path)
             img_embedding = embedding_helper.calculate_img_embeddings(model=model, preprocess=preprocess, raw_image=img_query, device='cpu')
@@ -69,10 +71,17 @@ def create_update_index_routes(app, model, index_cache, userIds, preprocess):
             os.remove(cache_image_path)
 
             index = load_index(userId, userIds, index_cache)
-            add_to_csv(userId, userIds, orig_image_path)
-            add_to_faiss_index(userId, userIds, index, img_embedding)
+            # add_to_csv(userId, userIds, orig_image_path)
+            csv_params.append((userId, userIds, orig_image_path))
+            # add_to_faiss_index(userId, userIds, index, img_embedding)
+            faiss_index_params.append((userId, userIds, index, img_embedding))
 
             print(orig_image_path, " added to index and csv.")
         
-        return jsonify({'message': 'File uploaded successfully and created embedding', 'file_path': cache_image_path})
+        for csv_param in csv_params:
+            add_to_csv(*csv_param)
+        for faiss_index_param in faiss_index_params:
+            add_to_faiss_index(*faiss_index_param)
+            
+        return jsonify({'message': 'File uploaded successfully and created embedding', 'file_paths': orig_image_paths})
     

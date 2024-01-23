@@ -56,20 +56,25 @@
 
 
     </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/imageRegion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_margin="4dp"
-        android:layout_below="@+id/searchRegion">
-    </androidx.recyclerview.widget.RecyclerView>
+        android:layout_below="@+id/searchRegion"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="4dp"
+        android:orientation="vertical"></androidx.recyclerview.widget.RecyclerView>
 
     <RelativeLayout
         android:layout_width="300dp"
         android:layout_height="120dp"
         android:visibility="invisible"
-        android:layout_centerInParent="true">
+        android:layout_centerInParent="true"
+        android:id="@+id/progressBarRelativeLayout"
+        >
 
         <TextView
             android:layout_width="wrap_content"
@@ -89,7 +94,8 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:layout_marginHorizontal="15dp"
-            android:progressDrawable="@drawable/custom_progress_bar" />
+            android:progressDrawable="@drawable/custom_progress_bar"
+            android:translationZ="5dp"/>
 
         <TextView
             android:layout_width="wrap_content"
