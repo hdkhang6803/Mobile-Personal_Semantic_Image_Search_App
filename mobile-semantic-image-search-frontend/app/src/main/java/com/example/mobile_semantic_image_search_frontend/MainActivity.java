@@ -25,6 +25,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -198,15 +199,23 @@ public class MainActivity extends AppCompatActivity
                 // Share the selected images
                 ArrayList<Uri> uris = new ArrayList<>();
 
-                for (ImageModel imageModel : imageAdapter.imageList) {
+                for (ImageModel imageModel : imageAdapter.getSelectedImages()) {
                     String imageUri = imageModel.getImageUri();
                     File imageFile = new File(imageUri);
-                    Uri uri = Uri.fromFile(imageFile);
+
+                    // Use FileProvider to generate a content URI
+                    Uri uri = FileProvider.getUriForFile(
+                            getApplicationContext(),
+                            "com.example.android.fileprovider",
+                            imageFile);
                     uris.add(uri);
                 }
 
                 Intent shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
                 shareIntent.setType("image/*");
+
+                // Grant read permission to the receiving app
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
                 // Add the image URIs to the intent
                 shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
@@ -216,9 +225,6 @@ public class MainActivity extends AppCompatActivity
 
                 // Optionally, add text for the shared content
                 shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out these images!");
-
-                // Grant read permission to the receiving app
-                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
                 isSelectionEnabled = false;
                 imageAdapter.clearSelection();
