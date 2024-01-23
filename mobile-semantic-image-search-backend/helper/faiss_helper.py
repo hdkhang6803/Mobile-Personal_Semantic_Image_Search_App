@@ -28,7 +28,7 @@ def add_to_faiss_index(userId, userIds, index : faiss.IndexFlatIP, embedding, cn
         # create
         index = faiss.IndexFlatIP(embedding.shape[1])
     index.add(embedding)
-    cnt += 1
+    cnt[0] += 1
 
     userIdPath = os.path.join('data', userId)
     if (not os.path.exists(userIdPath)):

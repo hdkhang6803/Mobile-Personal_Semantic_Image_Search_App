@@ -60,5 +60,5 @@ def add_to_csv(userId, userIds, orig_image_path, cnt):
             f.write("image_path\n")
 
     with open(csv_file_path, 'a') as f:
-        cnt += 1
+        cnt[0] += 1
         f.write(orig_image_path + '\n')

@@ -72,6 +72,11 @@ def create_update_index_routes(app, model, index_cache, csv_path_cache, userIds,
 
             index = load_index(userId, userIds, index_cache)
             csv_image_paths = load_csv_paths(userId, userIds, csv_path_cache);
+
+            print("index_cache length: ", index_cache.nbtotal)
+            print("csv_image_paths length: ", csv_image_paths.__len__())
+
+
             if (orig_image_path not in csv_image_paths):        
                 add_to_csv(userId, userIds, orig_image_path, csv_cnt)
                 csv_image_paths.add(orig_image_path)
