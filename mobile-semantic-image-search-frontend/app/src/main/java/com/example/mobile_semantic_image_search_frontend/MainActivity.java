@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 122;
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 124;
     private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 125;
-    private HttpImageTask httpImageTask = new HttpImageTask(this);
+    private HttpImageTask httpImageTask = new HttpImageTask(this, this);
     private HttpTextTask httpTextTask = new HttpTextTask(this, this);
     private EditText editText;
     private ImageButton sendButton;
@@ -140,6 +140,7 @@ public class MainActivity extends AppCompatActivity
                     // Handle the regular click event
                     String imageUri = imageAdapter.imageList.get(position).getImageUri();
                     imageAdapter.showImageOptionsPopup(imageUri);
+                    Log.e("Regular click", "Image options popup");
                 }
             }
         });
