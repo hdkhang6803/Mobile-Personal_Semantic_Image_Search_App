@@ -7,7 +7,7 @@ from helper.csv_helper import add_to_csv
 import os
 import faiss
 from PIL import Image
-from data.index_cache_helper import load_index
+from helper.index_cache_helper import load_index
 
 
 
@@ -45,12 +45,15 @@ def get_image_path_from_request(request):
 
 
 
-def create_update_index_routes(app, model, index_cache, preprocess):
+def create_update_index_routes(app, model, index_cache, userIds, preprocess):
     
     @app.route('/update_index', methods=['POST'])
     def update_index():
         orig_image_paths, cache_image_paths = get_image_path_from_request(request)
-        userId = request.form['userId']
+        userIds_temp = request.files.getlist('userId')
+        userId = userIds_temp[0].filename
+
+        print("userId: ", userId)
 
         if len(orig_image_paths) == 0:
             return jsonify({'error': 'No selected file'})
@@ -58,6 +61,8 @@ def create_update_index_routes(app, model, index_cache, preprocess):
         # embedding = embedding_helper.calculate_img_embeddings(cache_image_path)
         # Create PIL Image from file path
 
+        csv_params = []
+        faiss_index_params = []
         for orig_image_path, cache_image_path in zip(orig_image_paths, cache_image_paths):
             img_query = Image.open(cache_image_path)
             img_embedding = embedding_helper.calculate_img_embeddings(model=model, preprocess=preprocess, raw_image=img_query, device='cpu')
@@ -65,11 +70,18 @@ def create_update_index_routes(app, model, index_cache, preprocess):
             # Delete the file at cache_image_path
             os.remove(cache_image_path)
 
-            index = load_index(userId, index_cache)
-            add_to_csv(userId, orig_image_path)
-            add_to_faiss_index(userId, load_index(userId, index), img_embedding)
+            index = load_index(userId, userIds, index_cache)
+            # add_to_csv(userId, userIds, orig_image_path)
+            csv_params.append((userId, userIds, orig_image_path))
+            # add_to_faiss_index(userId, userIds, index, img_embedding)
+            faiss_index_params.append((userId, userIds, index, img_embedding))
 
             print(orig_image_path, " added to index and csv.")
         
-        return jsonify({'message': 'File uploaded successfully and created embedding', 'file_path': cache_image_path})
+        for csv_param in csv_params:
+            add_to_csv(*csv_param)
+        for faiss_index_param in faiss_index_params:
+            add_to_faiss_index(*faiss_index_param)
+            
+        return jsonify({'message': 'File uploaded successfully and created embedding', 'file_paths': orig_image_paths})
     

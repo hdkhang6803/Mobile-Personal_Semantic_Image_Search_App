@@ -48,6 +48,8 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.android.flexbox:flexbox:3.0.0")
+
     implementation("com.squareup.picasso:picasso:2.71828")
+
 
 }

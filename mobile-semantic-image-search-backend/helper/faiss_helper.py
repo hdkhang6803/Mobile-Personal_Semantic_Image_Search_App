@@ -1,5 +1,6 @@
 import os
 import faiss
+from globals import INDEX_FILE_NAME
 
 def load_index(userId, index_file_name):
     """
@@ -22,9 +23,14 @@ def load_index(userId, index_file_name):
     index = faiss.read_index(index_file_name)
     return index
 
-def add_to_faiss_index(userId, index : faiss.IndexFlatIP, embedding):
+def add_to_faiss_index(userId, userIds, index : faiss.IndexFlatIP, embedding):
     if (index == None):
         # create
         index = faiss.IndexFlatIP(embedding.shape[1])
     index.add(embedding)
+
+    userIdPath = os.path.join('data', userId)
+    if (not os.path.exists(userIdPath)):
+        os.makedirs(userIdPath)
+
     faiss.write_index(index, os.path.join('data', userId, INDEX_FILE_NAME))

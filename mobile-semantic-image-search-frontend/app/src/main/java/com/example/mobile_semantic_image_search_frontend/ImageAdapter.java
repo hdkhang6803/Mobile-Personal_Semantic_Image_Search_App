@@ -1,25 +1,42 @@
 package com.example.mobile_semantic_image_search_frontend;
+import android.app.AlertDialog;
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.mobile_semantic_image_search_frontend.Object.ImageModel;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
 
     private Context context;
-<<<<<<< Updated upstream
-    private List<String> imageUriList;
-=======
+
     public List<ImageModel> imageList;
 
     private OnImageClickListener onImageClickListener;
@@ -41,11 +58,14 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     public void setOnImageLongClickListener(OnImageLongClickListener onImageLongClickListener) {
         this.onImageLongClickListener = onImageLongClickListener;
     }
->>>>>>> Stashed changes
 
     public ImageAdapter(Context context, List<String> imageUriList) {
         this.context = context;
-        this.imageUriList = imageUriList;
+        //Create a list of ImageModel objects from the list of image URIs
+        this.imageList = new ArrayList<>(); // imageList
+        for (String imageUri : imageUriList) {
+            imageList.add(new ImageModel(imageUri));
+        }
     }
     public void setImageUriList(List<String> imageUriList){
         this.imageList = new ArrayList<>(); // imageList
@@ -54,6 +74,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         }
         notifyDataSetChanged();
     }
+
 
     @NonNull
     @Override
@@ -64,12 +85,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
-<<<<<<< Updated upstream
-        String imageUriString = imageUriList.get(position);
-        File imageFile = new File(imageUriString);
 
-=======
-//        String imageUriString = imageUriList.get(position);
         position = holder.getAdapterPosition();
         ImageModel imageModel = imageList.get(position);
         String imageUriString = imageModel.getImageUri();
@@ -87,7 +103,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
         holder.bind(imageModel);
 
->>>>>>> Stashed changes
+
         Picasso.get()
                 .load(Uri.fromFile(imageFile))  // Convert the File to a Uri
                 .into(holder.imageView, new Callback() {
@@ -103,15 +119,14 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                         // Remove the ImageView from the RecyclerView and notify the adapter
                         int adapterPosition = holder.getAdapterPosition();
                         if (adapterPosition != RecyclerView.NO_POSITION) {
-                            imageUriList.remove(adapterPosition);
+                            imageList.remove(adapterPosition);
                             notifyItemRemoved(adapterPosition);
                             notifyItemRangeChanged(adapterPosition, imageList.size());
                         }
                     }
                 });
 
-<<<<<<< Updated upstream
-=======
+
     }
 
 
@@ -228,33 +243,28 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
                     Uri.parse("file://" + Environment.getExternalStorageDirectory())));
         }
->>>>>>> Stashed changes
     }
 
     @Override
     public int getItemCount() {
-        return imageUriList.size();
+        return imageList.size();
     }
 
     public static class ImageViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
+        CheckBox checkBox;
 
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.imageView);
-<<<<<<< Updated upstream
-        }
-    }
 
-    public void setImageUriList(List<String> imageUriList){
-        this.imageUriList = imageUriList;
-=======
             checkBox = itemView.findViewById(R.id.selectionCheckBox);
             checkBox.setSelected(false);
             checkBox.setVisibility(View.GONE);
         }
         public void bind(ImageModel imageModel) {
             checkBox.setChecked(imageModel.isSelected());
+            checkBox.setVisibility(imageModel.isShowingCheckbox() ? View.VISIBLE : View.GONE);
             // Update the checkbox visibility based on the model
             imageView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -281,9 +291,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     public void clearSelection() {
         for (ImageModel imageModel : imageList) {
             imageModel.setSelected(false);
-
+            imageModel.setShowingCheckbox(false);
         }
         notifyDataSetChanged();
->>>>>>> Stashed changes
+
     }
 }
