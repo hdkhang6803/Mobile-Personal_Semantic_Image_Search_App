@@ -45,7 +45,7 @@ def get_image_path_from_request(request):
 
 
 
-def create_update_index_routes(app, model, index_cache, csv_path_cache, userIds, preprocess):
+def create_update_index_routes(app, model, index_cache, csv_path_cache, userIds, preprocess, csv_cnt, index_cnt):
     
     @app.route('/update_index', methods=['POST'])
     def update_index():
@@ -72,11 +72,17 @@ def create_update_index_routes(app, model, index_cache, csv_path_cache, userIds,
 
             index = load_index(userId, userIds, index_cache)
             csv_image_paths = load_csv_paths(userId, userIds, csv_path_cache);
+
+            if (index != None):
+                print("index length: ", index.ntotal)
+                print("csv_image_paths length: ", csv_image_paths.__len__())
+
+
             if (orig_image_path not in csv_image_paths):        
-                add_to_csv(userId, userIds, orig_image_path)
+                add_to_csv(userId, userIds, orig_image_path, csv_cnt)
                 csv_image_paths.add(orig_image_path)
                 # csv_params.append((userId, userIds, orig_image_path))
-                add_to_faiss_index(userId, userIds, index, img_embedding)
+                add_to_faiss_index(userId, userIds, index, img_embedding, index_cnt)
                 # faiss_index_params.append((userId, userIds, index, img_embedding))
 
             print(orig_image_path, " added to index and csv.")
@@ -85,6 +91,9 @@ def create_update_index_routes(app, model, index_cache, csv_path_cache, userIds,
         #     add_to_csv(*csv_param)
         # for faiss_index_param in faiss_index_params:
         #     add_to_faiss_index(*faiss_index_param)
-            
+        
+        print("Index updated successfully")
+        print("Csv cnt: ", csv_cnt)
+        print("Index cnt: ", index_cnt)
         return jsonify({'message': 'File uploaded successfully and created embedding', 'file_paths': orig_image_paths})
     

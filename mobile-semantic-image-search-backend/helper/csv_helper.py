@@ -35,7 +35,7 @@ def load_csv_paths(userId, userIds, csv_path_cache):
         return csv_path_cache[userId]['paths']
         
 
-def add_to_csv(userId, userIds, orig_image_path):
+def add_to_csv(userId, userIds, orig_image_path, cnt):
     """
     Adds the image path to the csv file.
 
@@ -60,4 +60,5 @@ def add_to_csv(userId, userIds, orig_image_path):
             f.write("image_path\n")
 
     with open(csv_file_path, 'a') as f:
+        cnt[0] += 1
         f.write(orig_image_path + '\n')

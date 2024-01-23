@@ -23,11 +23,12 @@ def load_index(userId, index_file_name):
     index = faiss.read_index(index_file_name)
     return index
 
-def add_to_faiss_index(userId, userIds, index : faiss.IndexFlatIP, embedding):
+def add_to_faiss_index(userId, userIds, index : faiss.IndexFlatIP, embedding, cnt):
     if (index == None):
         # create
         index = faiss.IndexFlatIP(embedding.shape[1])
     index.add(embedding)
+    cnt[0] += 1
 
     userIdPath = os.path.join('data', userId)
     if (not os.path.exists(userIdPath)):
