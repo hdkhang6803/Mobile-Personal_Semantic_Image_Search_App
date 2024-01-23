@@ -171,7 +171,7 @@
             android:layout_centerInParent="true"
             android:layout_marginHorizontal="15dp"
             android:progressDrawable="@drawable/custom_progress_bar"
-/>
+            />
 
         <TextView
             android:layout_width="wrap_content"
