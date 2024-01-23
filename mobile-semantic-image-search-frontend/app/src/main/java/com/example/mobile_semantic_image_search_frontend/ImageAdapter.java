@@ -90,11 +90,13 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
 
         Picasso.get()
-                .load(Uri.fromFile(imageFile))  // Convert the File to a Uri
+                .load(Uri.fromFile(imageFile))                   // Convert the File to a Uri
+                .resize(200, 200)          // Reduce image size to avoid lagging
+                .centerInside()                                 // Crop the center of the image with given size while preserving dimension ratio
                 .into(holder.imageView, new Callback() {
                     @Override
                     public void onSuccess() {
-                        Log.d("load image success", "");
+                        Log.d("load image success", imageUriString);
                         holder.imageView.setVisibility(View.VISIBLE);
                     }
 
