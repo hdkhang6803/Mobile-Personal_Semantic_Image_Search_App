@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity
     private EditText editText;
     private ImageButton sendButton;
     private ImageButton cameraButton;
+    private ProgressBar progressBarQuery;
     private RecyclerView imageRegion;
     private Button uploadButton;
     private ProgressBar progressBar;
@@ -119,6 +120,7 @@ public class MainActivity extends AppCompatActivity
 
         sendButton = findViewById(R.id.sendButton);
         cameraButton = findViewById(R.id.cameraButton);
+        progressBarQuery = findViewById(R.id.progressBarQuery);
         imageRegion = findViewById(R.id.imageRegion);
 
         multiSelectionMenu = findViewById(R.id.multiSelectionMenu);
@@ -252,13 +254,14 @@ public class MainActivity extends AppCompatActivity
         imageRegion.setLayoutManager(new GridLayoutManager(this, 3));
     }
 
-    private static void setOnClickListenerCameraButton(Activity context, EditText editText, ImageButton cameraButton) {
+    private void setOnClickListenerCameraButton(Activity context, EditText editText, ImageButton cameraButton) {
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 editText.clearFocus();
                 imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
                 CameraUtil.dispatchTakePictureIntent(context);
+                progressBarQuery.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -270,6 +273,8 @@ public class MainActivity extends AppCompatActivity
                 String textQuery = editText.getText().toString();
                 editText.clearFocus();
                 imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+
+                progressBarQuery.setVisibility(View.VISIBLE);
 
                 Toast.makeText(getApplicationContext(), "The query is sent, please wait.", Toast.LENGTH_SHORT).show();
                 // Handle text query submission here
@@ -305,6 +310,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onTextQueryResponseReceived(List<String> imageUriList) {
 
+        // ẩn progress bar
+        progressBarQuery.setVisibility(View.GONE);
+
         // đoạn này dùng để test
         List<String> imageUriListTest = new ArrayList<>();
         imageUriListTest.add("/storage/emulated/0/DCIM/Screenshots/Screenshot_20240122_115710_Zalo.jpg");
@@ -315,7 +323,7 @@ public class MainActivity extends AppCompatActivity
         //     Log.d("uri list test", uri);
         // }
 
-        if (imageUriList == null){
+        if (imageUriList == null || imageUriList.size() == 0){
             imageAdapter.setImageUriList(new ArrayList<>());
             imageAdapter.notifyDataSetChanged();
             Toast.makeText(this, "No images found.", Toast.LENGTH_SHORT).show();
@@ -330,7 +338,11 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onImageQueryResponseReceived(List<String> imageUriList) {
-        if (imageUriList == null){
+
+        // ẩn progress bar
+        progressBarQuery.setVisibility(View.GONE);
+
+        if (imageUriList == null || imageUriList.size() == 0){
             imageAdapter.setImageUriList(new ArrayList<>());
             imageAdapter.notifyDataSetChanged();
             Toast.makeText(this, "No images found.", Toast.LENGTH_SHORT).show();
