@@ -55,27 +55,21 @@ def img_query_search_route(app, model, index_cache, userIds, preprocess):
             user_id = request.form['userId']
             print("USERID: ", user_id)
             # Get the base64-encoded image data from the request
-            # encoded_image = request.form['file']
-            
-            print("request.files: ", request.files)
-            print("request.form: ", request.form)
-            print("request.args: ", request.args)
-            
-            file = request.files['file']
-            print(file.filename)
+            encoded_image = request.form['file']
 
-            cache_file_path = os.path.join(CACHE_FOLDER_NAME, os.path.basename(file.filename))
-            file.save(cache_file_path)
+            # cache_file_path = os.path.join(CACHE_FOLDER_NAME, os.path.basename(file.filename))
+            # file.save(cache_file_path)
             # Decode base64 to binary
             # binary_data = base64.b64decode(encoded_image)
+            binary_data = encoded_image
 
             # Create a BytesIO object
-            # image_stream = BytesIO(binary_data)
+            image_stream = BytesIO(binary_data)
 
             
             # Open the image using PIL
-            # img_query = Image.open(image_stream)
-            img_query = Image.open(cache_file_path)
+            img_query = Image.open(image_stream)
+            # img_query = Image.open(cache_file_path)
             # plt.imshow(img_query)
             # plt.axis('off')
             # plt.show()
