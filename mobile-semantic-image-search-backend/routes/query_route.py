@@ -56,9 +56,13 @@ def img_query_search_route(app, model, index_cache, userIds, preprocess):
             print("USERID: ", user_id)
             # Get the base64-encoded image data from the request
             # encoded_image = request.form['file']
-            file = request.form['file']
+            file = request.files['file']
 
+            print("request.files: ", request.files)
+            print("request.form: ", request.form)
+            print("request.args: ", request.args)
             print(file.filename)
+
 
             cache_file_path = os.path.join(CACHE_FOLDER_NAME, os.path.basename(file.filename))
             file.save(cache_file_path)
