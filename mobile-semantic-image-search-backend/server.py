@@ -27,9 +27,10 @@ if not os.path.exists(userIDs_path):
 userIds = pd.read_csv(userIDs_path).to_numpy().flatten().tolist()
 print(userIds)
 
+csv_cnt = 0
+index_cnt = 0
 
-
-create_update_index_routes(app, model, index_cache, csv_path_cache, userIds, preprocess)
+create_update_index_routes(app, model, index_cache, csv_path_cache, userIds, preprocess, csv_cnt, index_cnt)
 txt_query_search_route(app=app, model=model, index_cache=index_cache, userIds=userIds)
 img_query_search_route(app=app, model=model, index_cache=index_cache, userIds=userIds, preprocess=preprocess)
     

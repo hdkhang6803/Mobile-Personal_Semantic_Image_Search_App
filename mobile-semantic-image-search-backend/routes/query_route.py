@@ -76,6 +76,7 @@ def img_query_search_route(app, model, index_cache, userIds, preprocess):
             # Open the image using PIL
             # img_query = Image.open(image_stream)
             img_query = Image.open(cache_file_path)
+            os.remove(cache_file_path)
             # plt.imshow(img_query)
             # plt.axis('off')
             # plt.show()
