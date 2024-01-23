@@ -69,6 +69,7 @@ public class HttpImageTask {
         //creating request body for file
         RequestBody imageFileRequestBody = RequestBody.create(MediaType.parse("image/jpeg"), imageFile);
         //MultipartBody.Part body = MultipartBody.Part.createFormData("file", imageFile.getName(), requestFile);
+        Log.e("userId", userId);
         Log.e("imageFile.getPath()", imageFile.getPath());
         //Log.e("requestFile", requestFile.toString());
 
