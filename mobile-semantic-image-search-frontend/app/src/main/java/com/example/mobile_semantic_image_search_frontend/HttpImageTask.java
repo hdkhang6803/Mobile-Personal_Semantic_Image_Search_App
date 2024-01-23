@@ -50,11 +50,11 @@ public class HttpImageTask {
         RequestBody userIdRequestBody = RequestBody.create(MediaType.parse("text/plain"), userId);
 
         // Create request body for imageFile's base64 string
-        String base64String = getBase64String(imageFile);
-        RequestBody imageFileRequestBody = RequestBody.create(MediaType.parse("text/plain"), base64String);
+        RequestBody imageFileRequestBody = RequestBody.create(MediaType.parse("image/*"), imageFile);
+        MultipartBody.Part imageFilePart = MultipartBody.Part.createFormData("file", imageFile.getName(), imageFileRequestBody);
 
         // Create a call and call the upload image method
-        Call<ServerResponse> call = apiService.uploadImage(userIdRequestBody, imageFileRequestBody);
+        Call<ServerResponse> call = apiService.uploadImage(userIdRequestBody, imageFilePart);
 
         call.enqueue(new Callback<ServerResponse>() {
 
