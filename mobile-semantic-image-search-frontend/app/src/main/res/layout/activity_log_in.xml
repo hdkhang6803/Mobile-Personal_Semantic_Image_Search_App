@@ -21,7 +21,7 @@
             android:layout_marginTop="32dp">
 
             <ImageView
-                android:id="@+id/imageView"
+                android:id="@+id/logo_text_signin"
                 android:layout_width="240dp"
                 android:layout_height="50dp"
                 android:src="@drawable/logo_text"
