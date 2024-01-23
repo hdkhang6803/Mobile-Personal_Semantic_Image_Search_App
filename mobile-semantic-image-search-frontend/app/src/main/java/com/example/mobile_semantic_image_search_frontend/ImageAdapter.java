@@ -162,39 +162,71 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         Picasso.get().load(Uri.fromFile(new File(imageUri))).into(fullImageView);
 
         // Delete button click listener
-        deleteButton.setOnClickListener(view -> {
-            // Handle delete action
-            // Notify the adapter after deletion
-            int position = imageList.indexOf(imageUri);
-            if (position != -1) {
-                File imageFile = new File(imageUri);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
 
-                // Set up the projection (we only need the ID)
-                String[] projection = { MediaStore.Images.Media._ID };
 
-                // Match on the file path
-                String selection = MediaStore.Images.Media.DATA + " = ?";
-                String[] selectionArgs = new String[] { imageFile.getAbsolutePath() };
-                Log.e("selectionArgs", selectionArgs[0]);
+                    // Get the item position in imageList by image Uri
+                    int position = 0;
+                    for (int i = 0; i < imageList.size(); i++) {
+                        if (imageList.get(i).getImageUri().equals(imageUri)) {
+                            position = i;
+                            break;
+                        }
+                    }
 
-                // Query for the ID of the media matching the file path
-                Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                ContentResolver contentResolver = context.getContentResolver();
-                Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
-                if (c.moveToFirst()) {
-                    // We found the ID. Deleting the item via the content provider will also remove the file
-                    long id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
-                    Uri deleteUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-                    contentResolver.delete(deleteUri, null, null);
-                } else {
-                    // File not found in media store DB
-                    Toast.makeText(context, "Image not exist in device!", Toast.LENGTH_SHORT).show();
+                    File imageFile = new File(imageUri);
+
+                    // Query the MediaStore to find the file
+                    String[] projection = {MediaStore.Files.FileColumns._ID};
+                    String selection = MediaStore.Images.Media.DATA + "=?";
+                    String[] selectionArgs = new String[]{imageFile.getAbsolutePath()};
+                    Log.e("FileDeletionUtil", "File path: " + imageFile.getAbsolutePath());
+
+                    ContentResolver contentResolver = context.getContentResolver();
+                    Cursor cursor = contentResolver.query(
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                            projection,
+                            selection,
+                            selectionArgs,
+                            null
+                    );
+
+                    if (cursor != null && cursor.moveToFirst()) {
+                        // Get the file's ID
+                        long fileId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID));
+
+                        // Build the content URI for the file
+                        Uri contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, fileId);
+
+                        Log.e("FileDeletionUtil", "File ID: " + fileId + "\nContent URI: " + contentUri);
+
+                        // Delete the file using the content resolver
+                        int rowsDeleted = contentResolver.delete(contentUri, null, null);
+
+                        if (rowsDeleted > 0) {
+                            Log.e("FileDeletionUtil", "File deleted successfully");
+                            imageList.remove(position);
+                            notifyItemRemoved(position);
+                        } else {
+                            Log.e("FileDeletionUtil", "Failed to delete file");
+                        }
+                    } else {
+                        Log.e("FileDeletionUtil", "File not found in MediaStore");
+                    }
+
+                    if (cursor != null) {
+                        cursor.close();
+                    }
+                } catch (Exception e) {
+                    Log.e("FileDeletionUtil", "Failed to delete file: " + e.getMessage());
                 }
-                c.close();
-            }
 
-            // Dismiss the dialog
-            dialog.dismiss();
+                // Dismiss the dialog
+                dialog.dismiss();
+            }
         });
 
         // Share button click listener
