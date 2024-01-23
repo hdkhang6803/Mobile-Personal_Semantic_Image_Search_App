@@ -39,7 +39,9 @@ import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity
-        implements HttpTextTask.TextQueryTaskListener, HttpImageTask.ImageQueryTaskListener{
+        implements HttpTextTask.TextQueryTaskListener, HttpImageTask.ImageQueryTaskListener,
+        ImageAdapter.OnImageClickListener, ImageAdapter.OnImageLongClickListener
+{
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 122;
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 124;
     private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 125;
@@ -128,42 +130,6 @@ public class MainActivity extends AppCompatActivity
         setupMultiSelectionMenu(multiSelectionMenu);
         imageAdapter = new ImageAdapter(this, new ArrayList<>());
 
-        imageAdapter.setOnImageClickListener(new ImageAdapter.OnImageClickListener() {
-            @Override
-            public void onImageClick(int position) {
-                if (isSelectionEnabled) {
-                    ImageModel imageModel = imageAdapter.imageList.get(position);
-                    imageModel.setSelected(!imageModel.isSelected());
-                    imageAdapter.notifyItemChanged(position);
-                    //Get all selected images and print out the array size
-                    List<ImageModel> selectedImageList = imageAdapter.getSelectedImages();
-                    Log.e("Selected images", "Selected images size: " + selectedImageList.size());
-                } else {
-                    // Handle the regular click event
-                    String imageUri = imageAdapter.imageList.get(position).getImageUri();
-                    imageAdapter.showImageOptionsPopup(imageUri);
-                    Log.e("Regular click", "Image options popup");
-                }
-            }
-        });
-
-        imageAdapter.setOnImageLongClickListener(new ImageAdapter.OnImageLongClickListener() {
-            @Override
-            public void onImageLongClick(int position) {
-
-                isSelectionEnabled = true;
-                // Show the multiSelectionMenu
-                for (ImageModel imageModel : imageAdapter.imageList) {
-                    imageModel.setShowingCheckbox(true);
-                }
-                imageAdapter.imageList.get(position).setSelected(true);
-                multiSelectionMenu.setVisibility(View.VISIBLE);
-                imageAdapter.notifyItemChanged(position);
-                imageAdapter.notifyDataSetChanged();
-                Log.e("Long click", "Milti selection start");
-            }
-        });
-
         setOnClickListenerSendButton(editText, sendButton);
         setOnClickListenerCameraButton(context, editText, cameraButton);
         setupImageRegion(imageRegion);
@@ -230,20 +196,36 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 // Share the selected images
-                List<ImageModel> selectedImageList = imageAdapter.getSelectedImages();
-                ArrayList<Uri> imageUriList = new ArrayList<>();
-                for (ImageModel imageModel : selectedImageList) {
-                    imageUriList.add(Uri.parse(imageModel.getImageUri()));
+                ArrayList<Uri> uris = new ArrayList<>();
+
+                for (ImageModel imageModel : imageAdapter.imageList) {
+                    String imageUri = imageModel.getImageUri();
+                    File imageFile = new File(imageUri);
+                    Uri uri = Uri.fromFile(imageFile);
+                    uris.add(uri);
                 }
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_SEND_MULTIPLE);
-                intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUriList);
-                intent.setType("image/*");
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                Intent shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+                shareIntent.setType("image/*");
+
+                // Add the image URIs to the intent
+                shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+
+                // Optionally, add a subject for the shared content
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Shared Images");
+
+                // Optionally, add text for the shared content
+                shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out these images!");
+
+                // Grant read permission to the receiving app
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
                 isSelectionEnabled = false;
                 imageAdapter.clearSelection();
-                startActivity(Intent.createChooser(intent, "Share images to.."));
                 multiSelectionMenu.setVisibility(View.INVISIBLE);
+
+                // Start the chooser to let the user pick a social media app
+                startActivity(Intent.createChooser(shareIntent, "Share images to..."));
             }
         });
     }
@@ -354,6 +336,38 @@ public class MainActivity extends AppCompatActivity
             imageAdapter.notifyDataSetChanged();
         }
     }
+
+    @Override
+    public void onImageClick(int position) {
+        int finalPosition = position;
+        Log.e("Image click", "Image click");
+        if (isSelectionEnabled) {
+            // Do nothing
+            List<ImageModel> selectedImageList = imageAdapter.getSelectedImages();
+            Log.e("Selected ", "Selected  size: " + selectedImageList.size());
+        } else {
+            // Handle the regular click event
+            String imageUri = imageAdapter.imageList.get(finalPosition).getImageUri();
+            imageAdapter.showImageOptionsPopup(imageUri);
+            Log.e("Regular click", "Image options popup");
+        }
+    }
+
+    @Override
+    public void onImageLongClick(int position) {
+
+        isSelectionEnabled = true;
+        // Show the multiSelectionMenu
+        for (ImageModel imageModel : imageAdapter.imageList) {
+            imageModel.setShowingCheckbox(true);
+        }
+        imageAdapter.imageList.get(position).setSelected(true);
+        multiSelectionMenu.setVisibility(View.VISIBLE);
+        imageAdapter.notifyDataSetChanged();
+        Log.e("Long click", "Multi selection start");
+    }
+
+
 
     private void startBackgroundService() {
         Intent serviceIntent = new Intent(this, BackgroundService.class);
