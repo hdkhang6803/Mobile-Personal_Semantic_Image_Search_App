@@ -56,7 +56,7 @@ public final class CameraUtil {
             try {
                 File tempPhotoFile = createImageFile();
                 photoFile = tempPhotoFile;
-                Uri photoURI = FileProvider.getUriForFile((Context)activity, "com.example.android.fileprovider", tempPhotoFile);
+                Uri photoURI = ContentUriProvider.getUriForFile((Context)activity, "com.example.mobile_semantic_image_search_frontend.fileprovider", tempPhotoFile);
                 takePictureIntent.putExtra("output", (Parcelable)photoURI);
                 ActivityCompat.startActivityForResult(activity, takePictureIntent, 123, (Bundle)null);
             } catch (IOException var4) {

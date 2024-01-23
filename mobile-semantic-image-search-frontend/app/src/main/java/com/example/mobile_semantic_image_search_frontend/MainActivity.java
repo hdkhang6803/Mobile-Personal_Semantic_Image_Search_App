@@ -10,8 +10,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -34,6 +36,11 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,6 +94,8 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Activity context = this;
+
+        Log.e("Manu", Build.MANUFACTURER);
 
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             // Permission is not granted, request it
@@ -157,6 +166,8 @@ public class MainActivity extends AppCompatActivity
         registerReceiver(serviceDoneReceiver, filterService, Context.RECEIVER_NOT_EXPORTED);
     }
 
+
+
     private void setupMultiSelectionMenu(RelativeLayout multiSelectionMenu) {
         Button clearSelectionButton = multiSelectionMenu.findViewById(R.id.clearSelectionButton);
         ImageButton multiDeleteButton = multiSelectionMenu.findViewById(R.id.multiDeleteButton);
@@ -203,13 +214,17 @@ public class MainActivity extends AppCompatActivity
                     for (ImageModel imageModel : imageAdapter.getSelectedImages()) {
                         String imageUri = imageModel.getImageUri();
                         File imageFile = new File(imageUri);
-
-                        // Use FileProvider to generate a content URI
-                        Uri uri = FileProvider.getUriForFile(
+//
+//                        // Use FileProvider to generate a content URI
+                        Uri uri = ContentUriProvider.getUriForFile(
                                 getApplicationContext(),
-                                "com.example.android.fileprovider",
+                                "com.example.mobile_semantic_image_search_frontend.fileprovider",
                                 imageFile);
-                        uris.add(uri);
+
+
+                        Log.d("Share images", "Image URI from file provider: " + uri.toString());
+                        uris.add(Uri.parse(imageUri));
+                        Log.e("Share images", "Image URI: " + imageUri);
                     }
 
                     Intent shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
@@ -398,3 +413,4 @@ public class MainActivity extends AppCompatActivity
         unregisterReceiver(serviceDoneReceiver);
     }
 }
+

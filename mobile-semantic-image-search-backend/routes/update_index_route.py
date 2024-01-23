@@ -31,8 +31,6 @@ def get_image_path_from_request(request):
 
     return orig_image_paths, cache_image_paths
 
-        
-
     # If the user submits an empty form
     # if file.filename == '':
     #     return None, None
@@ -68,7 +66,7 @@ def create_update_index_routes(app, model, index_cache, csv_path_cache, userIds,
             img_embedding = embedding_helper.calculate_img_embeddings(model=model, preprocess=preprocess, raw_image=img_query, device='cpu')
             
             # Delete the file at cache_image_path
-            os.remove(cache_image_path)
+            # os.remove(cache_image_path)
 
             index = load_index(userId, userIds, index_cache)
             csv_image_paths = load_csv_paths(userId, userIds, csv_path_cache);

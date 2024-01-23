@@ -248,7 +248,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                 // Check if the image file exists
                 if (imageFile.exists()) {
                     // Create a content URI from the image file
-                    Uri contentUri = FileProvider.getUriForFile(context, "com.example.android.fileprovider", imageFile);
+                    Uri contentUri = ContentUriProvider.getUriForFile(context, "com.example.mobile_semantic_image_search_frontend.fileprovider", imageFile);
 
                     // Set the URI as the EXTRA_STREAM for the intent
                     shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
