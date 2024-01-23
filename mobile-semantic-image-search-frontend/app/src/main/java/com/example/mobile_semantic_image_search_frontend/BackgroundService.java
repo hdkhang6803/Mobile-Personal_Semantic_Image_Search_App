@@ -139,9 +139,9 @@ public class BackgroundService extends Service {
         protected void onPostExecute(Boolean success) {
             // Update UI or perform additional actions based on the result
             if (success) {
-                Toast.makeText(BackgroundService.this, "Images uploaded successfully", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BackgroundService.this, "Images uploaded successfully.", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(BackgroundService.this, "Failed to upload images", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BackgroundService.this, "Failed to upload images.", Toast.LENGTH_SHORT).show();
             }
 
             // Notify the activity that the service is done

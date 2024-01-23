@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -27,6 +28,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mobile_semantic_image_search_frontend.Object.ImageModel;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -36,11 +38,12 @@ import java.util.List;
 
 
 
-public class MainActivity extends AppCompatActivity implements HttpTextTask.TextQueryTaskListener{
+public class MainActivity extends AppCompatActivity
+        implements HttpTextTask.TextQueryTaskListener, HttpImageTask.ImageQueryTaskListener{
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 122;
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 124;
     private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 125;
-    private HttpImageTask httpImageTask = new HttpImageTask(this);
+    private HttpImageTask httpImageTask = new HttpImageTask(this, this);
     private HttpTextTask httpTextTask = new HttpTextTask(this, this);
     private EditText editText;
     private ImageButton sendButton;
@@ -54,6 +57,9 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
 
     private FirebaseAuth mAuth;
     static InputMethodManager imm;
+
+    private boolean isSelectionEnabled = false;
+    RelativeLayout multiSelectionMenu;
 
     private BroadcastReceiver progressReceiver = new BroadcastReceiver() {
         @Override
@@ -114,7 +120,47 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
         sendButton = findViewById(R.id.sendButton);
         cameraButton = findViewById(R.id.cameraButton);
         imageRegion = findViewById(R.id.imageRegion);
+
+        multiSelectionMenu = findViewById(R.id.multiSelectionMenu);
+        multiSelectionMenu.setVisibility(View.INVISIBLE);
+        setupMultiSelectionMenu(multiSelectionMenu);
         imageAdapter = new ImageAdapter(this, new ArrayList<>());
+
+        imageAdapter.setOnImageClickListener(new ImageAdapter.OnImageClickListener() {
+            @Override
+            public void onImageClick(int position) {
+                if (isSelectionEnabled) {
+                    ImageModel imageModel = imageAdapter.imageList.get(position);
+                    imageModel.setSelected(!imageModel.isSelected());
+                    imageAdapter.notifyItemChanged(position);
+                    //Get all selected images and print out the array size
+                    List<ImageModel> selectedImageList = imageAdapter.getSelectedImages();
+                    Log.e("Selected images", "Selected images size: " + selectedImageList.size());
+                } else {
+                    // Handle the regular click event
+                    String imageUri = imageAdapter.imageList.get(position).getImageUri();
+                    imageAdapter.showImageOptionsPopup(imageUri);
+                    Log.e("Regular click", "Image options popup");
+                }
+            }
+        });
+
+        imageAdapter.setOnImageLongClickListener(new ImageAdapter.OnImageLongClickListener() {
+            @Override
+            public void onImageLongClick(int position) {
+
+                isSelectionEnabled = true;
+                // Show the multiSelectionMenu
+                for (ImageModel imageModel : imageAdapter.imageList) {
+                    imageModel.setShowingCheckbox(true);
+                }
+                imageAdapter.imageList.get(position).setSelected(true);
+                multiSelectionMenu.setVisibility(View.VISIBLE);
+                imageAdapter.notifyItemChanged(position);
+                imageAdapter.notifyDataSetChanged();
+                Log.e("Long click", "Milti selection start");
+            }
+        });
 
         setOnClickListenerSendButton(editText, sendButton);
         setOnClickListenerCameraButton(context, editText, cameraButton);
@@ -142,6 +188,63 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
         registerReceiver(serviceDoneReceiver, filterService, Context.RECEIVER_NOT_EXPORTED);
     }
 
+    private void setupMultiSelectionMenu(RelativeLayout multiSelectionMenu) {
+        Button clearSelectionButton = multiSelectionMenu.findViewById(R.id.clearSelectionButton);
+        ImageButton multiDeleteButton = multiSelectionMenu.findViewById(R.id.multiDeleteButton);
+        ImageButton multiShareButton = multiSelectionMenu.findViewById(R.id.multiShareButton);
+
+        clearSelectionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Clear the selection
+                isSelectionEnabled = false;
+                imageAdapter.clearSelection();
+                multiSelectionMenu.setVisibility(View.INVISIBLE);
+            }
+        });
+
+        multiDeleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Delete the selected images
+                List<ImageModel> selectedImageList = imageAdapter.getSelectedImages();
+                for (ImageModel imageModel : selectedImageList) {
+                    File file = new File(imageModel.getImageUri());
+                    if (file.delete()) {
+                        Log.d("Delete image", "Deleted image " + imageModel.getImageUri());
+                    } else {
+                        Log.d("Delete image", "Failed to delete image " + imageModel.getImageUri());
+                    }
+                }
+                imageAdapter.imageList.removeAll(selectedImageList);
+                isSelectionEnabled = false;
+                imageAdapter.clearSelection();
+                imageAdapter.notifyItemRangeChanged(0, imageAdapter.imageList.size());
+                multiSelectionMenu.setVisibility(View.INVISIBLE);
+            }
+        });
+
+        multiShareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Share the selected images
+                List<ImageModel> selectedImageList = imageAdapter.getSelectedImages();
+                ArrayList<Uri> imageUriList = new ArrayList<>();
+                for (ImageModel imageModel : selectedImageList) {
+                    imageUriList.add(Uri.parse(imageModel.getImageUri()));
+                }
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_SEND_MULTIPLE);
+                intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUriList);
+                intent.setType("image/*");
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                isSelectionEnabled = false;
+                imageAdapter.clearSelection();
+                startActivity(Intent.createChooser(intent, "Share images to.."));
+                multiSelectionMenu.setVisibility(View.INVISIBLE);
+            }
+        });
+    }
 
 
     private void setupImageRegion(RecyclerView imageRegion){
@@ -168,12 +271,12 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
                 editText.clearFocus();
                 imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
 
-                Toast.makeText(getApplicationContext(), "The query is sent, please wait", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "The query is sent, please wait.", Toast.LENGTH_SHORT).show();
                 // Handle text query submission here
                 new Handler(getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        httpTextTask.sendTextData(mAuth.getCurrentUser().getUid(),textQuery);
+                        httpTextTask.sendTextData(mAuth.getCurrentUser().getUid(), textQuery);
                     }
                 });
             }
@@ -188,11 +291,11 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
 
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
             if (photoFile != null) {
-                Toast.makeText(getApplicationContext(), "The image query is sent, please wait", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "The image query is sent, please wait.", Toast.LENGTH_SHORT).show();
                 new Handler(getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        httpImageTask.uploadImage(mAuth.getCurrentUser().getUid(),photoFile);
+                        httpImageTask.uploadImage(mAuth.getCurrentUser().getUid(), photoFile);
                     }
                 });
             }
@@ -212,14 +315,32 @@ public class MainActivity extends AppCompatActivity implements HttpTextTask.Text
         //     Log.d("uri list test", uri);
         // }
 
-        for (String uri : imageUriList){
-            Log.d("uri list", uri);
+        if (imageUriList == null){
+            imageAdapter.setImageUriList(new ArrayList<>());
+            imageAdapter.notifyDataSetChanged();
+            Toast.makeText(this, "No images found.", Toast.LENGTH_SHORT).show();
         }
-        imageAdapter.setImageUriList(imageUriList);
-        imageAdapter.notifyDataSetChanged();
+        else{
+            for (String uri : imageUriList)
+                Log.d("uri list", uri);
+            imageAdapter.setImageUriList(imageUriList);
+            imageAdapter.notifyDataSetChanged();
+        }
+    }
 
-
-
+    @Override
+    public void onImageQueryResponseReceived(List<String> imageUriList) {
+        if (imageUriList == null){
+            imageAdapter.setImageUriList(new ArrayList<>());
+            imageAdapter.notifyDataSetChanged();
+            Toast.makeText(this, "No images found.", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            for (String uri : imageUriList)
+                Log.d("uri list", uri);
+            imageAdapter.setImageUriList(imageUriList);
+            imageAdapter.notifyDataSetChanged();
+        }
     }
 
     private void startBackgroundService() {

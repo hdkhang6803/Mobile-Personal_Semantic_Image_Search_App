@@ -42,12 +42,12 @@ public class HttpTextTask {
                         ServerResponse serverResponse = response.body();
                         if (serverResponse != null) {
                             String status = serverResponse.getStatus();
-                            Log.e("HTTP Text Response", "Server Response: " + status);
+                            Log.e("HTTP Text Query Response", "Server Response: " + status);
                             List<String> imageUriList = serverResponse.getImageUris();
                             notifyTextQueryResponseReceived(imageUriList);
                         }
                     } else {
-                        Log.e("HTTP Text Server error", "Server Response Code: " + response.code());
+                        Log.e("HTTP Text Query Server error", "Server Response Code: " + response.code());
                     }
                 } finally {
                     // Close the response body to release resources

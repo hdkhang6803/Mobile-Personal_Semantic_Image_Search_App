@@ -12,8 +12,8 @@ import okhttp3.RequestBody;
 public interface ApiService {
     @Multipart
     @POST("img_query")
-    Call<ServerResponse> uploadImage(@Part("userId") RequestBody userId,
-                                               @Part MultipartBody.Part filePart);
+    Call<ServerResponse> uploadImage(@Part("userId") RequestBody userIdRequestBody,
+                                     @Part("file") RequestBody imageFileRequestBody);
     @POST("txt_query")
     Call<ServerResponse> sendTextData(@Query("userId") String userId, @Body String textData);
 }

@@ -12,6 +12,7 @@ public class ServerResponse {
     private String status;
     @SerializedName("image_uris")
     private List<String> image_uris;
+    private String error;
 
     private String message;
 
@@ -25,6 +26,7 @@ public class ServerResponse {
     public List<String> getImageUris(){
         return image_uris;
     }
+    public String getError() { return error; }
 
 //    public List<ImageObject> getImageList(Context context) {
 //        List<ImageObject> imageList = new ArrayList<>();
