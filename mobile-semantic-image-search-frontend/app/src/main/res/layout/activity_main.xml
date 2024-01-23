@@ -132,24 +132,36 @@
         android:layout_marginBottom="4dp"
         android:orientation="vertical"></androidx.recyclerview.widget.RecyclerView>
 
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="invisible"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="10dp"
+        app:borderWidth="0dp"
+        android:id="@+id/progressBarRelativeLayout"
+        app:cardBackgroundColor="@color/white"
+        >
     <RelativeLayout
         android:layout_width="300dp"
         android:layout_height="120dp"
-        android:visibility="invisible"
         android:layout_centerInParent="true"
-        android:id="@+id/progressBarRelativeLayout"
-        >
+        android:visibility="visible">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_margin="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+
+            android:layout_marginBottom="10dp"
             android:text="Uploading your image"
             android:textSize="20dp"
             android:textStyle="bold"
-
-            />
+            android:textColor="@color/black"/>
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -159,7 +171,7 @@
             android:layout_centerInParent="true"
             android:layout_marginHorizontal="15dp"
             android:progressDrawable="@drawable/custom_progress_bar"
-            android:translationZ="5dp"/>
+/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -172,9 +184,11 @@
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
             android:text="Your device's images are uploading to the server. Please wait!"
-            android:textSize="10dp" />
+            android:textSize="10dp"
+            android:textColor="@color/black"/>
 
     </RelativeLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <RelativeLayout
         android:layout_width="match_parent"

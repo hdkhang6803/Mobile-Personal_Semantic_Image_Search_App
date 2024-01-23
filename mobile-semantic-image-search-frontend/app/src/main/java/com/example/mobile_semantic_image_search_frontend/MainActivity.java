@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mobile_semantic_image_search_frontend.Object.ImageModel;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -62,7 +63,7 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView imageRegion;
     private Button uploadButton;
     private ProgressBar progressBar;
-    private RelativeLayout progressRelativeLayout;
+    private MaterialCardView progressRelativeLayout;
 
     private ImageAdapter imageAdapter;
 

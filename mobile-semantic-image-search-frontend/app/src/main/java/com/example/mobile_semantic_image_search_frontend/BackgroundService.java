@@ -84,7 +84,7 @@ public class BackgroundService extends Service {
             Log.d(TAG, " length: " + imageFiles.size());
 
             // Process images in batches of 5
-            int batchSize = 5;
+            int batchSize = 3;
             int maxThreads = 5; // Set the maximum number of threads
             AtomicInteger failedCount = new AtomicInteger();
 
@@ -95,9 +95,9 @@ public class BackgroundService extends Service {
             Executor executor = new ThreadPoolExecutor(maxThreads, maxThreads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
 
             // Process images in batches of 5
-            for (int i = 0; i < imageFiles.size(); i += 5) {
+            for (int i = 0; i < imageFiles.size(); i += batchSize) {
                 Log.d(TAG, " i: " + i);
-                int endIndex = Math.min(i + 5, imageFiles.size());
+                int endIndex = Math.min(i + batchSize, imageFiles.size());
                 ArrayList<File> batch = new ArrayList<>(imageFiles.subList(i, endIndex));
 
 //                Executor executor = Executors.newFixedThreadPool(5);
@@ -107,15 +107,16 @@ public class BackgroundService extends Service {
                     if (batch != null && !batch.isEmpty()) {
                         try {
 //                        postImagesBatchToServer(batch);
+                            updateProgress(finalI * 100 / imageFiles.size());
                             Log.d(TAG, " sending batch i " + finalI);
                             boolean result = postImagesBatchToServerWithRetry(batch);
                             if (!result) {
                                 failedCount.getAndIncrement();
                             }
                             latch.countDown();
-                            Log.d(TAG, " processed " + (finalI + 5) );
-                            Log.d(TAG, " failed count " + failedCount.get());
-                            updateProgress(finalI * 100 / imageFiles.size());
+                            Log.d(TAG, " processed " + (finalI + batchSize) );
+                            Log.d(TAG, " failed count " + failedCount.get() * batchSize);
+
                         } catch (IOException e) {
                             Log.e(TAG, "Error making POST request with retry: " + e.getMessage());
 //                            return false;
