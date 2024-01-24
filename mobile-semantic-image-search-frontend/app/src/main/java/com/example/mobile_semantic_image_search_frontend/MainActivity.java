@@ -165,6 +165,8 @@ public class MainActivity extends AppCompatActivity
                 isSelectionEnabled = false;
                 imageAdapter.clearSelection();
                 multiSelectionMenu.setVisibility(View.INVISIBLE);
+                sendButton.setVisibility(View.VISIBLE);
+                cameraButton.setVisibility(View.VISIBLE);
             }
         });
 
@@ -210,6 +212,8 @@ public class MainActivity extends AppCompatActivity
                     isSelectionEnabled = false;
                     imageAdapter.clearSelection();
                     multiSelectionMenu.setVisibility(View.INVISIBLE);
+                    sendButton.setVisibility(View.VISIBLE);
+                    cameraButton.setVisibility(View.VISIBLE);
 
                     // Start the chooser to let the user pick a social media app
                     startActivity(Intent.createChooser(shareIntent, "Share images to..."));
@@ -217,6 +221,8 @@ public class MainActivity extends AppCompatActivity
                     e.printStackTrace();
                     Log.e("Share images", "Failed to share images");
                     Toast.makeText(getApplicationContext(), "Failed to share images", Toast.LENGTH_SHORT).show();
+                    sendButton.setVisibility(View.VISIBLE);
+                    cameraButton.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -340,16 +346,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onImageClick(int position) {
         int finalPosition = position;
-        Log.e("Image click", "Image click");
         if (isSelectionEnabled) {
             // Do nothing
-            List<ImageModel> selectedImageList = imageAdapter.getSelectedImages();
-            Log.e("Selected ", "Selected  size: " + selectedImageList.size());
         } else {
             // Handle the regular click event
             String imageUri = imageAdapter.imageList.get(finalPosition).getImageUri();
             imageAdapter.showImageOptionsPopup(imageUri, mAuth.getCurrentUser().getUid());
-            Log.e("Regular click", "Image options popup");
         }
     }
 
