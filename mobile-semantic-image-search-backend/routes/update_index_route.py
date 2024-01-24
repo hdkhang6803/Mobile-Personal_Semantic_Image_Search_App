@@ -69,7 +69,7 @@ def create_update_index_routes(app, model, index_cache, csv_path_cache, userIds,
                 print("Error while deleting file in cache ", cache_image_path, " continuing...")
                 continue
                 return jsonify({'message': 'File uploaded successfully and created embedding ', 'file_paths': orig_image_paths})
-            os.remove(cache_image_path)
+            # os.remove(cache_image_path)
 
             index = load_index(userId, userIds, index_cache)
             csv_image_paths = load_csv_paths(userId, userIds, csv_path_cache);
