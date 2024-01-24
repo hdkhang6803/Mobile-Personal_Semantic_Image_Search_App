@@ -56,20 +56,7 @@ def create_update_index_routes(app, model, index_cache, csv_path_cache, userIds,
         if len(orig_image_paths) == 0:
             return jsonify({'error': 'No selected file'})
         
-        # embedding = embedding_helper.calculate_img_embeddings(cache_image_path)
-        # Create PIL Image from file path
-
-        csv_params = []
-        faiss_index_params = []
         for orig_image_path, cache_image_path in zip(orig_image_paths, cache_image_paths):
-            # Delete the file at cache_image_path
-            try:
-                os.remove(cache_image_path)
-            except:
-                print("Error while deleting file in cache ", cache_image_path, " continuing...")
-                continue
-                return jsonify({'message': 'File uploaded successfully and created embedding ', 'file_paths': orig_image_paths})
-            # os.remove(cache_image_path)
 
             index = load_index(userId, userIds, index_cache)
             csv_image_paths = load_csv_paths(userId, userIds, csv_path_cache);
@@ -80,9 +67,16 @@ def create_update_index_routes(app, model, index_cache, csv_path_cache, userIds,
 
 
             if (orig_image_path not in csv_image_paths):        
-                img_query = Image.open(cache_image_path)
+                # Delete the file at cache_image_path
+                try:
+                    img_query = Image.open(cache_image_path)
+                    os.remove(cache_image_path)
+                except:
+                    print("Error while deleting file in cache ", cache_image_path, " continuing...")
+                    continue
+                    return jsonify({'message': 'File uploaded successfully and created embedding ', 'file_paths': orig_image_paths})
                 img_embedding = embedding_helper.calculate_img_embeddings(model=model, preprocess=preprocess, raw_image=img_query, device='cpu')
-
+                
                 add_to_csv(userId, userIds, orig_image_path, csv_cnt)
                 csv_image_paths.add(orig_image_path)
                 # csv_params.append((userId, userIds, orig_image_path))
