@@ -2,11 +2,18 @@ package com.example.mobile_semantic_image_search_frontend;
 
 import android.content.Context;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -22,8 +29,15 @@ public class HttpTextTask {
     public HttpTextTask(Context context, TextQueryTaskListener textQueryTaskListener) {
         this.context = context;
         this.textQueryTaskListener = textQueryTaskListener;
+
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS) // Connection timeout
+                .readTimeout(10, TimeUnit.SECONDS)    // Read timeout
+                .writeTimeout(10, TimeUnit.SECONDS)   // Write timeout
+                .build();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://164.92.122.168:5000/")
+                .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -47,6 +61,7 @@ public class HttpTextTask {
                             notifyTextQueryResponseReceived(imageUriList);
                         }
                     } else {
+                        changeButtonsVisibility();
                         Log.e("HTTP Text Query Server error", "Server Response Code: " + response.code());
                     }
                 } finally {
@@ -59,13 +74,30 @@ public class HttpTextTask {
 
             @Override
             public void onFailure(Call<ServerResponse> call, Throwable t) {
-                if (t instanceof HttpException) {
+                changeButtonsVisibility();
+                showTimeoutToast();
+                if (t instanceof SocketTimeoutException) {
+                    showTimeoutToast();
+                } else if (t instanceof HttpException) {
                     HttpException httpException = (HttpException) t;
                     int statusCode = httpException.code();
                     Log.e("HTTP Failure", "Error Code: " + statusCode);
                 } else {
                     Log.e("HTTP Failure", "Error: " + t.getMessage());
                 }
+            }
+
+            private void changeButtonsVisibility(){
+                ImageButton sendButton = ((MainActivity) context).findViewById(R.id.sendButton);
+                ImageButton cameraButton = ((MainActivity) context).findViewById(R.id.cameraButton);
+                ProgressBar progressBarQuery = ((MainActivity) context).findViewById(R.id.progressBarQuery);
+                sendButton.setVisibility(View.VISIBLE);
+                cameraButton.setVisibility(View.VISIBLE);
+                progressBarQuery.setVisibility(View.GONE);
+            }
+
+            private void showTimeoutToast() {
+                Toast.makeText(context, "Request timed out. Please check your Internet connection.", Toast.LENGTH_LONG).show();
             }
         });
     }
