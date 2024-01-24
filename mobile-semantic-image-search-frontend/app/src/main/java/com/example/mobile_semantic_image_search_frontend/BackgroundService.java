@@ -139,13 +139,15 @@ public  class BackgroundService extends Service {
             // Update UI or perform additional actions based on the result
             if (success) {
                 Toast.makeText(BackgroundService.this, "Images uploaded successfully.", Toast.LENGTH_SHORT).show();
+                progressFinishCallback.onFinish();
+
             } else {
                 Toast.makeText(BackgroundService.this, "Failed to upload images.", Toast.LENGTH_SHORT).show();
-            }
+                progressFinishCallback.onFinish();
 
-            // Notify the activity that the service is done
-            Intent broadcastIntent = new Intent("com.example.mobile_semantic_image_search_frontend.ACTION_SERVICE_DONE");
-            sendBroadcast(broadcastIntent);
+            }
+            stopSelf();
+
         }
 
         private ArrayList<File> getImagesFromDirectory(String directoryPath) {
@@ -344,10 +346,20 @@ public  class BackgroundService extends Service {
     private ProgressCallback progressCallback;
     public interface ProgressCallback {
         void onProgressUpdate(int progress);
+
     }
 
     public void setProgressCallback(ProgressCallback callback) {
         this.progressCallback = callback;
+    }
+
+    private ProgressFinishCallback progressFinishCallback;
+    public interface ProgressFinishCallback {
+        void onFinish();
+    }
+
+    public void setProgressFinishCallback(ProgressFinishCallback callback) {
+        this.progressFinishCallback = callback;
     }
 
     private final IBinder binder = new MyBinder();

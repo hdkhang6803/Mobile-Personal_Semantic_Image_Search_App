@@ -53,7 +53,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements HttpTextTask.TextQueryTaskListener, HttpImageTask.ImageQueryTaskListener,
-        ImageAdapter.OnImageClickListener, ImageAdapter.OnImageLongClickListener, BackgroundService.ProgressCallback
+        ImageAdapter.OnImageClickListener, ImageAdapter.OnImageLongClickListener, BackgroundService.ProgressCallback,
+        BackgroundService.ProgressFinishCallback
 {
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 122;
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 124;
@@ -149,29 +150,6 @@ public class MainActivity extends AppCompatActivity
         // Initialize your ProgressBar
         progressBar = findViewById(R.id.progressBar);
         progressRelativeLayout = findViewById(R.id.progressBarRelativeLayout);
-
-//        progressReceiver = new BroadcastReceiver() {
-//            @Override
-//            public void onReceive(Context context, Intent intent) {
-//                int progress = intent.getIntExtra("progress", 0);
-//                Log.e("Receive Progress", "Progress: " + progress);
-//                progressBar.setProgress(progress);
-//            }
-//        };
-//        IntentFilter filter = new IntentFilter("com.example.mobile_semantic_image_search_frontend.ACTION_UPDATE_PROGRESS");
-//        registerReceiver(progressReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
-//
-//        // Register the receiver
-//         serviceDoneReceiver = new BroadcastReceiver() {
-//            @Override
-//            public void onReceive(Context context, Intent intent) {
-//                // Make the ProgressBar invisible
-//                progressBar.setVisibility(View.INVISIBLE);
-//                progressRelativeLayout.setVisibility(View.INVISIBLE);
-//            }
-//        };
-//        IntentFilter filterService = new IntentFilter("com.example.mobile_semantic_image_search_frontend.ACTION_SERVICE_DONE");
-//        registerReceiver(serviceDoneReceiver, filterService, Context.RECEIVER_NOT_EXPORTED);
     }
 
 
@@ -399,6 +377,7 @@ public class MainActivity extends AppCompatActivity
             BackgroundService.MyBinder binder = (BackgroundService.MyBinder) iBinder;
             BackgroundService backgroundService = binder.getService();
             backgroundService.setProgressCallback(MainActivity.this);
+            backgroundService.setProgressFinishCallback(MainActivity.this);
         }
 
         @Override
@@ -420,11 +399,18 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy() {
         unbindService(serviceConnection);
         super.onDestroy();
-        unregisterReceiver(progressReceiver);
-        unregisterReceiver(serviceDoneReceiver);
+//        unregisterReceiver(progressReceiver);
+//        unregisterReceiver(serviceDoneReceiver);
         Log.e("Unregister", "Unregister progressReceiver");
     }
 
 
+    @Override
+    public void onFinish() {
+        // Make the ProgressBar invisible
+        progressBar.setVisibility(View.INVISIBLE);
+        progressRelativeLayout.setVisibility(View.INVISIBLE);
+
+    }
 }
 
