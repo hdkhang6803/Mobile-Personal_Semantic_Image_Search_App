@@ -69,6 +69,14 @@ public class SignUp extends AppCompatActivity {
                     toast.show();
                     return;
                 }
+                if(edtSignUpPassword.length() < 6){
+                    CharSequence text = "Password must be at least 6 characters!";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(getBaseContext(), text, duration);
+                    toast.show();
+                    return;
+                }
                 mAuth.createUserWithEmailAndPassword(edtSignUpEmail, edtSignUpPassword)
                         .addOnCompleteListener(this_act, new OnCompleteListener<AuthResult>() {
                             @Override
@@ -110,9 +118,16 @@ public class SignUp extends AppCompatActivity {
                                 } else {
                                     // If sign in fails, display a message to the user.
                                     Log.e("SIGNUP", "createUserWithEmail:failure", task.getException());
+                                    CharSequence text = "Sign up failed!" + task.getException().getMessage();
+                                    int duration = Toast.LENGTH_SHORT;
+                                    Toast toast = Toast.makeText(getBaseContext(), text, duration);
+                                    toast.show();
+                                    return;
 
                                 }
                             }
+
+
                         });
             }
         });

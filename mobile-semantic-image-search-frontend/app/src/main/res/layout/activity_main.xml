@@ -108,6 +108,7 @@
             android:background="@color/white"
             android:src="@drawable/share"
             android:layout_alignParentEnd="true"
+            android:layout_marginLeft="16dp"
             android:contentDescription="Share"/>
 
 

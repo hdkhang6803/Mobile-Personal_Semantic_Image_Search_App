@@ -363,6 +363,8 @@ public class MainActivity extends AppCompatActivity
         }
         imageAdapter.imageList.get(position).setSelected(true);
         multiSelectionMenu.setVisibility(View.VISIBLE);
+        sendButton.setVisibility(View.GONE);
+        cameraButton.setVisibility(View.GONE);
         imageAdapter.notifyDataSetChanged();
         Log.e("Long click", "Multi selection start");
     }

@@ -49,6 +49,8 @@ public  class BackgroundService extends Service {
     private static final int MAX_RETRY_COUNT = 3;
     private FirebaseAuth mAuth;
     private ProgressBar progressBar;
+
+    private ImageUploadTask imageUploadTask;
     public static final String ACTION_UPDATE_PROGRESS = "com.example.mobile_semantic_image_search_frontend.ACTION_UPDATE_PROGRESS";
 
     @Override
@@ -60,7 +62,8 @@ public  class BackgroundService extends Service {
 
         mAuth = FirebaseAuth.getInstance();
 
-        new ImageUploadTask().execute();
+        imageUploadTask = new ImageUploadTask();
+        imageUploadTask.execute();
 
         // If you want the service to continue running until explicitly stopped
         return START_STICKY;
@@ -146,6 +149,7 @@ public  class BackgroundService extends Service {
                 progressFinishCallback.onFinish();
 
             }
+            imageUploadTask.cancel(true);
             stopSelf();
 
         }
@@ -346,9 +350,7 @@ public  class BackgroundService extends Service {
     private ProgressCallback progressCallback;
     public interface ProgressCallback {
         void onProgressUpdate(int progress);
-
     }
-
     public void setProgressCallback(ProgressCallback callback) {
         this.progressCallback = callback;
     }
@@ -357,7 +359,6 @@ public  class BackgroundService extends Service {
     public interface ProgressFinishCallback {
         void onFinish();
     }
-
     public void setProgressFinishCallback(ProgressFinishCallback callback) {
         this.progressFinishCallback = callback;
     }
