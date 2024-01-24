@@ -5,14 +5,17 @@ import static com.example.mobile_semantic_image_search_frontend.CameraUtil.REQUE
 import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
@@ -28,6 +31,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -49,7 +53,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements HttpTextTask.TextQueryTaskListener, HttpImageTask.ImageQueryTaskListener,
-        ImageAdapter.OnImageClickListener, ImageAdapter.OnImageLongClickListener
+        ImageAdapter.OnImageClickListener, ImageAdapter.OnImageLongClickListener, BackgroundService.ProgressCallback
 {
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 122;
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 124;
@@ -73,22 +77,9 @@ public class MainActivity extends AppCompatActivity
     private boolean isSelectionEnabled = false;
     RelativeLayout multiSelectionMenu;
 
-    private BroadcastReceiver progressReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            int progress = intent.getIntExtra("progress", 0);
-            progressBar.setProgress(progress);
-        }
-    };
+    private BroadcastReceiver progressReceiver = null;
 
-    private BroadcastReceiver serviceDoneReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Make the ProgressBar invisible
-            progressBar.setVisibility(View.INVISIBLE);
-            progressRelativeLayout.setVisibility(View.INVISIBLE);
-        }
-    };
+    private BroadcastReceiver serviceDoneReceiver = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,6 +141,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
 //                startActivity(intent);
+
                 startBackgroundService();
             }
         });
@@ -158,13 +150,28 @@ public class MainActivity extends AppCompatActivity
         progressBar = findViewById(R.id.progressBar);
         progressRelativeLayout = findViewById(R.id.progressBarRelativeLayout);
 
-        // Register the receiver
-        IntentFilter filter = new IntentFilter("your.package.name.ACTION_UPDATE_PROGRESS");
-        registerReceiver(progressReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
-
-        // Register the receiver
-        IntentFilter filterService = new IntentFilter("your.package.name.ACTION_SERVICE_DONE");
-        registerReceiver(serviceDoneReceiver, filterService, Context.RECEIVER_NOT_EXPORTED);
+//        progressReceiver = new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                int progress = intent.getIntExtra("progress", 0);
+//                Log.e("Receive Progress", "Progress: " + progress);
+//                progressBar.setProgress(progress);
+//            }
+//        };
+//        IntentFilter filter = new IntentFilter("com.example.mobile_semantic_image_search_frontend.ACTION_UPDATE_PROGRESS");
+//        registerReceiver(progressReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+//
+//        // Register the receiver
+//         serviceDoneReceiver = new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                // Make the ProgressBar invisible
+//                progressBar.setVisibility(View.INVISIBLE);
+//                progressRelativeLayout.setVisibility(View.INVISIBLE);
+//            }
+//        };
+//        IntentFilter filterService = new IntentFilter("com.example.mobile_semantic_image_search_frontend.ACTION_SERVICE_DONE");
+//        registerReceiver(serviceDoneReceiver, filterService, Context.RECEIVER_NOT_EXPORTED);
     }
 
 
@@ -183,26 +190,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-//        multiDeleteButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                // Delete the selected images
-//                List<ImageModel> selectedImageList = imageAdapter.getSelectedImages();
-//                for (ImageModel imageModel : selectedImageList) {
-//                    File file = new File(imageModel.getImageUri());
-//                    if (file.delete()) {
-//                        Log.d("Delete image", "Deleted image " + imageModel.getImageUri());
-//                    } else {
-//                        Log.d("Delete image", "Failed to delete image " + imageModel.getImageUri());
-//                    }
-//                }
-//                imageAdapter.imageList.removeAll(selectedImageList);
-//                isSelectionEnabled = false;
-//                imageAdapter.clearSelection();
-//                imageAdapter.notifyItemRangeChanged(0, imageAdapter.imageList.size());
-//                multiSelectionMenu.setVisibility(View.INVISIBLE);
-//            }
-//        });
 
         multiShareButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -401,16 +388,43 @@ public class MainActivity extends AppCompatActivity
         progressBar.setVisibility(View.VISIBLE);
         progressRelativeLayout.setVisibility(View.VISIBLE);
         startService(serviceIntent);
+        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 
 //        progressBar = findViewById(R.id.progressBar);
 
     }
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            BackgroundService.MyBinder binder = (BackgroundService.MyBinder) iBinder;
+            BackgroundService backgroundService = binder.getService();
+            backgroundService.setProgressCallback(MainActivity.this);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+        }
+    };
+
+    @Override
+    public void onProgressUpdate(int progress) {
+        // Update your ProgressBar here
+        progressBar.setProgress(progress);
+        Log.e("ProgressBar update ok", "Progress: " + progress);
+    }
+
+
+
 
     @Override
     protected void onDestroy() {
+        unbindService(serviceConnection);
         super.onDestroy();
         unregisterReceiver(progressReceiver);
         unregisterReceiver(serviceDoneReceiver);
+        Log.e("Unregister", "Unregister progressReceiver");
     }
+
+
 }
 

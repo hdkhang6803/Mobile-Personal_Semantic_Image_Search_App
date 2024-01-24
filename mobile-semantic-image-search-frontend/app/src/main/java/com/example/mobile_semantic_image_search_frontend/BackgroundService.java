@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Binder;
 import android.os.Environment;
 import android.os.IBinder;
 import android.provider.MediaStore;
@@ -41,14 +42,14 @@ import android.net.Uri;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-public class BackgroundService extends Service {
+public  class BackgroundService extends Service {
     private static final String TAG = "BackgroundService";
     private static final String SERVER_IP = "http://164.92.122.168:5000/update_index"; // Replace with your server IP
 
     private static final int MAX_RETRY_COUNT = 3;
     private FirebaseAuth mAuth;
     private ProgressBar progressBar;
-    public static final String ACTION_UPDATE_PROGRESS = "your.package.name.ACTION_UPDATE_PROGRESS";
+    public static final String ACTION_UPDATE_PROGRESS = "com.example.mobile_semantic_image_search_frontend.ACTION_UPDATE_PROGRESS";
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -56,18 +57,15 @@ public class BackgroundService extends Service {
         // For example, displaying a Toast message
 //        Toast.makeText(this, "Background Service is running", Toast.LENGTH_SHORT).show();
 
+
         mAuth = FirebaseAuth.getInstance();
+
         new ImageUploadTask().execute();
 
         // If you want the service to continue running until explicitly stopped
         return START_STICKY;
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        // Not used for this example
-        return null;
-    }
 
     private class ImageUploadTask extends AsyncTask<Void, Void, Boolean> {
 
@@ -146,7 +144,7 @@ public class BackgroundService extends Service {
             }
 
             // Notify the activity that the service is done
-            Intent broadcastIntent = new Intent("your.package.name.ACTION_SERVICE_DONE");
+            Intent broadcastIntent = new Intent("com.example.mobile_semantic_image_search_frontend.ACTION_SERVICE_DONE");
             sendBroadcast(broadcastIntent);
         }
 
@@ -341,9 +339,41 @@ public class BackgroundService extends Service {
         return file;
     }
 
+
+
+    private ProgressCallback progressCallback;
+    public interface ProgressCallback {
+        void onProgressUpdate(int progress);
+    }
+
+    public void setProgressCallback(ProgressCallback callback) {
+        this.progressCallback = callback;
+    }
+
+    private final IBinder binder = new MyBinder();
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
+
+    public class MyBinder extends Binder {
+        BackgroundService getService() {
+            return BackgroundService.this;
+        }
+    }
+
     private void updateProgress(int progress) {
-        Intent intent = new Intent(ACTION_UPDATE_PROGRESS);
-        intent.putExtra("progress", progress);
-        sendBroadcast(intent);
+//        Intent intent = new Intent( "com.example.mobile_semantic_image_search_frontend.ACTION_UPDATE_PROGRESS");
+//        intent.putExtra("progress", progress);
+
+////        progressBar.setProgress(progress);
+//        sendBroadcast(intent);
+        if (progressCallback != null) {
+            Log.e("Sendprogess", "progress: " + progress);
+            progressCallback.onProgressUpdate(progress);
+        }else {
+            Log.e("Sendprogess", "progressCallback is null");
+        }
     }
 }

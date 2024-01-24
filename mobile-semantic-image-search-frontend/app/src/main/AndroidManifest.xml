@@ -30,6 +30,7 @@
         android:theme="@style/Theme.Mobilesemanticimagesearchfrontend"
         android:usesCleartextTraffic="true"
         tools:targetApi="31"
+        android:installLocation="internalOnly"
         >
         <activity
             android:name=".SignUp"
@@ -64,7 +65,11 @@
 
 <!--                <category android:name="android.intent.category.LAUNCHER" />-->
 <!--            </intent-filter>-->
+<!--            <intent-filter>-->
+<!--                <action android:name="com.example.mobile_semantic_image_search_frontend.ACTION_UPDATE_PROGRESS" />-->
+<!--            </intent-filter>-->
         </activity>
+
 
         <service
             android:name=".BackgroundService"
