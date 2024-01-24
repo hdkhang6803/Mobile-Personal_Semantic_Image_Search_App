@@ -235,6 +235,8 @@ public class MainActivity extends AppCompatActivity
                 editText.clearFocus();
                 imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
                 CameraUtil.dispatchTakePictureIntent(context);
+                sendButton.setVisibility(View.GONE);
+                cameraButton.setVisibility(View.GONE);
                 progressBarQuery.setVisibility(View.VISIBLE);
             }
         });
@@ -248,6 +250,8 @@ public class MainActivity extends AppCompatActivity
                 editText.clearFocus();
                 imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
 
+                sendButton.setVisibility(View.GONE);
+                cameraButton.setVisibility(View.GONE);
                 progressBarQuery.setVisibility(View.VISIBLE);
 
                 Toast.makeText(getApplicationContext(), "The query is sent, please wait.", Toast.LENGTH_SHORT).show();
@@ -284,7 +288,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onTextQueryResponseReceived(List<String> imageUriList) {
 
-        // ẩn progress bar
+        // ẩn progress bar và hiện lại các nút
+        sendButton.setVisibility(View.VISIBLE);
+        cameraButton.setVisibility(View.VISIBLE);
         progressBarQuery.setVisibility(View.GONE);
 
         // đoạn này dùng để test
@@ -313,7 +319,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onImageQueryResponseReceived(List<String> imageUriList) {
 
-        // ẩn progress bar
+        // ẩn progress bar và hiện lại các nút
+        sendButton.setVisibility(View.VISIBLE);
+        cameraButton.setVisibility(View.VISIBLE);
         progressBarQuery.setVisibility(View.GONE);
 
         if (imageUriList == null || imageUriList.size() == 0){

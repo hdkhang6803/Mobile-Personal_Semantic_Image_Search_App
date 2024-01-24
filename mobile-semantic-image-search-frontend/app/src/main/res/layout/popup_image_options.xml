@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:background="@color/white"
-    android:layout_height="match_parent"
-    android:paddingBottom="16dp"
-    >
-    <ImageView
-        android:id="@+id/fullImageView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitCenter"/>
+    android:paddingBottom="8dp"
+    android:theme="@style/Base.Theme.Mobilesemanticimagesearchfrontend">
 
     <ImageButton
         android:id="@+id/cancelButton"
@@ -19,52 +15,51 @@
         android:src="@drawable/cancel_icon"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="5dp"
         android:background="@android:color/transparent"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="5dp"/>
 
-
+    <ImageView
+        android:id="@+id/fullImageView"
+        android:layout_width="match_parent"
+        android:layout_height="630dp"
+        android:layout_below="@id/cancelButton"
+        android:scaleType="fitCenter"/>
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/fullImageView"
+        app:cardCornerRadius="8dp"
+        app:cardBackgroundColor="@color/design_default_color_primary_dark"
+        app:cardElevation="10dp"
         android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="16dp"
-
-        app:cardBackgroundColor="@color/white"
-        app:cardCornerRadius="20dp"
-        app:cardUseCompatPadding="false"
-        >
-
+        android:layout_marginStart="15dp">
         <ImageButton
             android:id="@+id/deleteButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:background="@android:color/transparent"
-            android:src="@drawable/search_next" />
+            android:layout_margin="8dp"
+            android:src="@drawable/round_search"
+            android:background="@android:color/transparent"/>
+    </com.google.android.material.card.MaterialCardView>
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/fullImageView"
+        app:cardCornerRadius="8dp"
+        app:cardBackgroundColor="@color/design_default_color_primary_dark"
+        app:cardElevation="10dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="15dp">
+        <ImageButton
+            android:id="@+id/shareButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:src="@drawable/round_share"
+            android:background="@android:color/transparent"/>
     </com.google.android.material.card.MaterialCardView>
 
-    <com.google.android.material.card.MaterialCardView
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="16dp"
-        app:cardCornerRadius="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/white"
-        app:cardUseCompatPadding="false"
-        >
-    <ImageButton
-        android:id="@+id/shareButton"
-        android:background="@android:color/transparent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/share"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="5dp"
-         />
-    </com.google.android.material.card.MaterialCardView>
+
 </RelativeLayout>

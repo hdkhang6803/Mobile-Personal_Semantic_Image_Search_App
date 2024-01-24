@@ -169,12 +169,19 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             public void onClick(View v) {
                 try {
                     File imageFile = new File(imageUri);
+                    ImageButton sendButton = ((MainActivity) context).findViewById(R.id.sendButton);
+                    ImageButton cameraButton = ((MainActivity) context).findViewById(R.id.cameraButton);
+                    ProgressBar progressBarQuery = ((MainActivity) context).findViewById(R.id.progressBarQuery);
+                    sendButton.setVisibility(View.GONE);
+                    cameraButton.setVisibility(View.GONE);
+                    progressBarQuery.setVisibility(View.VISIBLE);
 
                     HttpImageTask httpImageTask = new HttpImageTask(context, new HttpImageTask.ImageQueryTaskListener() {
                         @Override
                         public void onImageQueryResponseReceived(List<String> imageUriList) {
-                            ProgressBar progressBar = ((MainActivity) context).findViewById(R.id.progressBarQuery);
-                            progressBar.setVisibility(View.GONE);
+                            sendButton.setVisibility(View.VISIBLE);
+                            cameraButton.setVisibility(View.VISIBLE);
+                            progressBarQuery.setVisibility(View.GONE);
                             if (imageUriList == null || imageUriList.size() == 0){
                                 setImageUriList(new ArrayList<>());
                                 notifyDataSetChanged();

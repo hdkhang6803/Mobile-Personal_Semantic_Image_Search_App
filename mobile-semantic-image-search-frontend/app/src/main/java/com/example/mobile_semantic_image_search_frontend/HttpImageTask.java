@@ -6,6 +6,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -15,12 +19,15 @@ import com.google.gson.GsonBuilder;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -37,8 +44,14 @@ public class HttpImageTask {
         this.imageQueryTaskListener = imageQueryTaskListener;
 
         Gson gson = new GsonBuilder().setLenient().create();
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS) // Connection timeout
+                .readTimeout(10, TimeUnit.SECONDS)    // Read timeout
+                .writeTimeout(10, TimeUnit.SECONDS)   // Write timeout
+                .build();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://164.92.122.168:5000/")
+                .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         apiService = retrofit.create(ApiService.class);
@@ -49,7 +62,7 @@ public class HttpImageTask {
         // Create request body for userId
         RequestBody userIdRequestBody = RequestBody.create(MediaType.parse("text/plain"), userId);
 
-        // Create request body for imageFile's base64 string
+        // Create request body for imageFile and MultipartBody for sending the whole file
         RequestBody imageFileRequestBody = RequestBody.create(MediaType.parse("image/*"), imageFile);
         MultipartBody.Part imageFilePart = MultipartBody.Part.createFormData("file", imageFile.getName(), imageFileRequestBody);
 
@@ -70,6 +83,7 @@ public class HttpImageTask {
                             notifyImageQueryResponseReceived(imageUriList);
                         }
                     } else {
+                        changeButtonsVisibility();
                         Log.e("HTTP Image Query Server error", "Server Response Code: " + response.code());
                     }
                 } finally {
@@ -82,7 +96,26 @@ public class HttpImageTask {
 
             @Override
             public void onFailure(Call<ServerResponse> call, Throwable t) {
-                Log.e("HTTP Image failure", "Error: " + t.getMessage());
+                changeButtonsVisibility();
+                showTimeoutToast();
+                if (t instanceof SocketTimeoutException) {
+                    showTimeoutToast();
+                } else {
+                    Log.e("HTTP Image failure", "Error: " + t.getMessage());
+                }
+            }
+
+            private void changeButtonsVisibility(){
+                ImageButton sendButton = ((MainActivity) context).findViewById(R.id.sendButton);
+                ImageButton cameraButton = ((MainActivity) context).findViewById(R.id.cameraButton);
+                ProgressBar progressBarQuery = ((MainActivity) context).findViewById(R.id.progressBarQuery);
+                sendButton.setVisibility(View.VISIBLE);
+                cameraButton.setVisibility(View.VISIBLE);
+                progressBarQuery.setVisibility(View.GONE);
+            }
+
+            private void showTimeoutToast() {
+                Toast.makeText(context, "Request timed out. Please check your Internet connection.", Toast.LENGTH_LONG).show();
             }
         });
     }
