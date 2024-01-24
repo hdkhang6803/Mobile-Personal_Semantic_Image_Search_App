@@ -21,6 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_width="0dp"
             android:layout_weight="7"
+            android:textColorHint="@color/black"
             android:hint="Enter text here">
 
             <EditText
@@ -32,6 +33,7 @@
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:maxLines="1"
+                android:textColor="@color/black"
            />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -86,28 +88,18 @@
         android:translationZ="10dp"
         android:background="@color/white"
         android:layout_alignParentTop="true"
-        android:visibility="invisible"
+        android:visibility="visible"
         android:gravity="center_vertical">
 
         <Button
             android:id="@+id/clearSelectionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:layout_toLeftOf="@id/multiDeleteButton"
+            android:layout_toLeftOf="@id/multiShareButton"
+            android:backgroundTint="#673AB7"
+            android:textColorHint="@color/white"
             android:hint="Clear"/>
 
-
-        <ImageButton
-            android:id="@+id/multiDeleteButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginStart="16dp"
-            android:src="@drawable/delete"
-            android:background="@color/white"
-            android:layout_toLeftOf="@id/multiShareButton"
-            android:text="Send"/>
 
         <ImageButton
             android:id="@+id/multiShareButton"
@@ -116,7 +108,7 @@
             android:background="@color/white"
             android:src="@drawable/share"
             android:layout_alignParentEnd="true"
-            android:contentDescription="Camera"/>
+            android:contentDescription="Share"/>
 
 
     </RelativeLayout>

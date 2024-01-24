@@ -112,7 +112,7 @@
                 android:paddingStart="20dp"
                 android:paddingTop="10dp"
                 android:paddingEnd="20dp"
-                android:paddingBottom="20dp"
+                android:paddingBottom="10dp"
                 android:text="Log In"
                 android:textColor="@color/white"
                 app:cornerRadius="10dp" />

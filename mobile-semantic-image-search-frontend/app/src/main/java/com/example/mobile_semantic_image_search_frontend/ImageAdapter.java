@@ -9,6 +9,7 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,6 +20,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -143,7 +145,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     }
 
 
-    public void showImageOptionsPopup(String imageUri) {
+    public void showImageOptionsPopup(String imageUri, String userId) {
         // Inflate the popup layout
         View popupView = LayoutInflater.from(context).inflate(R.layout.popup_image_options, null);
 
@@ -154,7 +156,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
         // Get views from the popup layout
         ImageView fullImageView = popupView.findViewById(R.id.fullImageView);
-        ImageButton deleteButton = popupView.findViewById(R.id.deleteButton);
+        ImageButton findButton = popupView.findViewById(R.id.deleteButton);
         ImageButton shareButton = popupView.findViewById(R.id.shareButton);
         ImageButton cancelButton = popupView.findViewById(R.id.cancelButton);
 
@@ -162,70 +164,41 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         Picasso.get().load(Uri.fromFile(new File(imageUri))).into(fullImageView);
 
         // Delete button click listener
-        deleteButton.setOnClickListener(new View.OnClickListener() {
+        findButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
-
-
-                    // Get the item position in imageList by image Uri
-                    int position = 0;
-                    for (int i = 0; i < imageList.size(); i++) {
-                        if (imageList.get(i).getImageUri().equals(imageUri)) {
-                            position = i;
-                            break;
-                        }
-                    }
-
                     File imageFile = new File(imageUri);
 
-                    // Query the MediaStore to find the file
-                    String[] projection = {MediaStore.Files.FileColumns._ID};
-                    String selection = MediaStore.Images.Media.DATA + "=?";
-                    String[] selectionArgs = new String[]{imageFile.getAbsolutePath()};
-                    Log.e("FileDeletionUtil", "File path: " + imageFile.getAbsolutePath());
-
-                    ContentResolver contentResolver = context.getContentResolver();
-                    Cursor cursor = contentResolver.query(
-                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                            projection,
-                            selection,
-                            selectionArgs,
-                            null
-                    );
-
-                    if (cursor != null && cursor.moveToFirst()) {
-                        // Get the file's ID
-                        long fileId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID));
-
-                        // Build the content URI for the file
-                        Uri contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, fileId);
-
-                        Log.e("FileDeletionUtil", "File ID: " + fileId + "\nContent URI: " + contentUri);
-
-                        // Delete the file using the content resolver
-                        int rowsDeleted = contentResolver.delete(contentUri, null, null);
-
-                        if (rowsDeleted > 0) {
-                            Log.e("FileDeletionUtil", "File deleted successfully");
-                            Toast.makeText(context, "File deleted successfully", Toast.LENGTH_SHORT).show();
-                            imageList.remove(position);
-                            notifyItemRemoved(position);
-                        } else {
-                            Log.e("FileDeletionUtil", "Failed to delete file");
-                            Toast.makeText(context, "Failed to delete file", Toast.LENGTH_SHORT).show();
+                    HttpImageTask httpImageTask = new HttpImageTask(context, new HttpImageTask.ImageQueryTaskListener() {
+                        @Override
+                        public void onImageQueryResponseReceived(List<String> imageUriList) {
+                            ProgressBar progressBar = ((MainActivity) context).findViewById(R.id.progressBarQuery);
+                            progressBar.setVisibility(View.GONE);
+                            if (imageUriList == null || imageUriList.size() == 0){
+                                setImageUriList(new ArrayList<>());
+                                notifyDataSetChanged();
+                                Toast.makeText(context, "No images found.", Toast.LENGTH_SHORT).show();
+                            }
+                            else{
+                                for (String uri : imageUriList)
+                                    Log.d("uri list", uri);
+                                setImageUriList(imageUriList);
+                                notifyDataSetChanged();
+                            }
                         }
-                    } else {
-                        Log.e("FileDeletionUtil", "File not found in MediaStore");
-                        Toast.makeText(context, "File not found in MediaStore", Toast.LENGTH_SHORT).show();
+                    });
+                    if (imageFile!=null && imageFile.exists()) {
+                        new Handler(context.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                httpImageTask.uploadImage(userId, imageFile);
+                            }
+                        });
                     }
 
-                    if (cursor != null) {
-                        cursor.close();
-                    }
-                } catch (Exception e) {
-                    Log.e("FileDeletionUtil", "Failed to delete file: " + e.getMessage());
-                    Toast.makeText(context, "Failed to delete file", Toast.LENGTH_SHORT).show();
+                }catch (Exception e){
+                    Log.e("Find next image error", e.getMessage());
                 }
 
                 // Dismiss the dialog

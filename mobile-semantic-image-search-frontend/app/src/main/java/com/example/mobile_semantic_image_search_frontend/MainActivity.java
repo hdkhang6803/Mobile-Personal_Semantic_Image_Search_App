@@ -171,7 +171,6 @@ public class MainActivity extends AppCompatActivity
 
     private void setupMultiSelectionMenu(RelativeLayout multiSelectionMenu) {
         Button clearSelectionButton = multiSelectionMenu.findViewById(R.id.clearSelectionButton);
-        ImageButton multiDeleteButton = multiSelectionMenu.findViewById(R.id.multiDeleteButton);
         ImageButton multiShareButton = multiSelectionMenu.findViewById(R.id.multiShareButton);
 
         clearSelectionButton.setOnClickListener(new View.OnClickListener() {
@@ -184,26 +183,26 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        multiDeleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Delete the selected images
-                List<ImageModel> selectedImageList = imageAdapter.getSelectedImages();
-                for (ImageModel imageModel : selectedImageList) {
-                    File file = new File(imageModel.getImageUri());
-                    if (file.delete()) {
-                        Log.d("Delete image", "Deleted image " + imageModel.getImageUri());
-                    } else {
-                        Log.d("Delete image", "Failed to delete image " + imageModel.getImageUri());
-                    }
-                }
-                imageAdapter.imageList.removeAll(selectedImageList);
-                isSelectionEnabled = false;
-                imageAdapter.clearSelection();
-                imageAdapter.notifyItemRangeChanged(0, imageAdapter.imageList.size());
-                multiSelectionMenu.setVisibility(View.INVISIBLE);
-            }
-        });
+//        multiDeleteButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                // Delete the selected images
+//                List<ImageModel> selectedImageList = imageAdapter.getSelectedImages();
+//                for (ImageModel imageModel : selectedImageList) {
+//                    File file = new File(imageModel.getImageUri());
+//                    if (file.delete()) {
+//                        Log.d("Delete image", "Deleted image " + imageModel.getImageUri());
+//                    } else {
+//                        Log.d("Delete image", "Failed to delete image " + imageModel.getImageUri());
+//                    }
+//                }
+//                imageAdapter.imageList.removeAll(selectedImageList);
+//                isSelectionEnabled = false;
+//                imageAdapter.clearSelection();
+//                imageAdapter.notifyItemRangeChanged(0, imageAdapter.imageList.size());
+//                multiSelectionMenu.setVisibility(View.INVISIBLE);
+//            }
+//        });
 
         multiShareButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -376,7 +375,7 @@ public class MainActivity extends AppCompatActivity
         } else {
             // Handle the regular click event
             String imageUri = imageAdapter.imageList.get(finalPosition).getImageUri();
-            imageAdapter.showImageOptionsPopup(imageUri);
+            imageAdapter.showImageOptionsPopup(imageUri, mAuth.getCurrentUser().getUid());
             Log.e("Regular click", "Image options popup");
         }
     }
