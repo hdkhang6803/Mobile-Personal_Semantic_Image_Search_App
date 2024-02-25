@@ -1,4 +1,4 @@
-# Mobile-Personal_Lifelog_App
+# Personal Semantic Image Search App
 ## **I. About this project:**
 
 In an industrialized and technologically transformed society, the amount of data available around each user is endless. Regarding your small mobile device, most of the memory will be occupied by photos, videos or other applications. To optimize the time spent retrieving moments captured by users' cameras, **SnapSeek** - a powerful tool for managing and utilizing personal photo collections was born to solve that big problem. With unique search capabilities based on linguistic descriptions, the app opens up a new approach to connecting users with important images and memories in their lives.
